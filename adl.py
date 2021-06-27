@@ -13,7 +13,7 @@ def color_print(text):
     print("\033[0;36m" + text + " \033[0m")
 
 # colored watch primpt
-def watch_primpt(title, episode):
+def watch_prompt(title, episode):
     print("Now watching \033[0;34m" + title + "\033[0m, episode \033[0;34m" + str(episode) + " \033[0m")
 
 # colored input
@@ -51,27 +51,61 @@ def exit_ask():
         elif choice == "Y" or choice == "y":
             return
 
+# get your title
 def get_title(full_choice):
     full_choice = full_choice[9:55]
     full_choice = full_choice.rstrip(".")
     return full_choice
 
+# get episode
 def get_episode(full_choice):
     full_choice = full_choice[58:60]
     return int(full_choice)
 
+# get all episodes
 def get_all_episodes(full_choice):
     full_choice = full_choice[63:65]
     return full_choice
 
+# next episode
 def next_episode(title,episode,player):
-    watch_primpt(title, episode)
+    watch_prompt(title, str(episode))
     os.system('anime dl "'  + title + '" --episodes ' + str(episode + 1) + ' --play ' + player)
 
-def all_from_last(title,episode, last_episode, player):
-    watch_primpt(title, episode)
-    os.system('anime dl "'  + title + '" --episodes ' + str(episode + 1) + ':' + last_episode + ' --play ' + player)
+# all from last watched
+def all_from_last(title,episode, player):
+    watch_prompt(title, str(episode) + " all left episodes")
+    os.system('anime dl "'  + title + '" --episodes ' + str(episode + 1) + ': --play' + player)
 
+# all episode
+def all_episodes(title, player):
+    watch_prompt(title, "all")
+    os.system('anime dl "'  + title + '" --episodes 1: --play ' + player)
+
+# watch from custom range
+def custom_episode_range(title, player):
+    begginig = color_prommpt("Beggining of interval?: ")
+    end = color_prommpt("End of interval?: ")
+    watch_prompt(title, begginig + " to " + end)
+    os.system('anime dl "' + title + '" --episodes ' + begginig + ':' + end +' --play ' + player)
+
+# add to last watched m
+def next_plus_n(title, episode, player, action):
+    watch_prompt(title, str(episode + int(action)))
+    os.system('anime dl "'  + title + '" --episodes ' + str(episode + int(action)) + ' --play ' + player)
+
+# rewatch current episode
+def rewatch_episode(title, episode, player):
+    watch_prompt(title, str(episode))
+    os.system('anime dl "' + title + '" --episodes ' + str(episode) + ' --play ' + player)
+
+# watch custom episode
+def custom_episode(title, player):
+    episode = color_prommpt("Enter custom episode: ")
+    watch_prompt(title, episode)
+    os.system('anime dl "' + title + '" --episodes ' + episode + ' --play ' + player)
+
+# choose what to do with episode
 def choose_episode():
     os.system("cls")
     color_print("Enter lowercase or uppercase to issue command:")
@@ -98,7 +132,7 @@ while True:
         full_choice = "".join(choice)
         title = get_title(full_choice)
         episode = get_episode(full_choice)
-        all_episodes = get_all_episodes(full_choice)
+        last_episode = get_all_episodes(full_choice)
         while True:
             action = choose_episode()
             if action == "":
@@ -108,15 +142,22 @@ while True:
                 next_episode(title, episode, player)
                 break
             elif action == "l" or action == "L":
-                all_from_last(title, episode,all_episodes, player)
+                all_from_last(title, episode,last_episode, player)
                 break
             elif action == "a" or action == "A":
+                all_episodes(title, player)
                 break
-            elif action == str(range(0,9)):
+            elif action == "i" or action == "I":
+                custom_episode_range(title, player)
+                break
+            elif action == "1" or action == "2" or action == "3" or action == "4" or action == "5" or action == "6" or action == "7" or action == "8" or action == "9":
+                next_plus_n(title, episode, player, action)
                 break
             elif action == "r" or action == "R":
+                rewatch_episode(title, episode, player)
                 break
             elif action == "c" or action == "C":
+                custom_episode(title, player)
                 break
             elif action == "u" or action == "U":
                 break
