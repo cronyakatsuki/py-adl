@@ -67,6 +67,11 @@ def get_all_episodes(full_choice):
     full_choice = full_choice[63:65]
     return full_choice
 
+# get score
+def get_score(full_choice):
+    full_choice = full_choice[68:71]
+    return full_choice
+
 # next episode
 def next_episode(title,episode,player):
     watch_prompt(title, str(episode))
@@ -104,6 +109,36 @@ def custom_episode(title, player):
     episode = color_prommpt("Enter custom episode: ")
     watch_prompt(title, episode)
     os.system('anime dl "' + title + '" --episodes ' + episode + ' --play ' + player)
+    
+# update title
+def update_title(title, episode):
+    color_print("Current episode for " + title + " is " + str(episode))
+    custom = color_prommpt("Enter updated episode number: ")
+    if custom != "":
+        os.system('trackma -a ' + account + ' update "' + title + '" ' + custom)
+    else:
+        color_print("Skipping updating...")
+
+# update score
+def update_score(title, score):
+    color_print("Current score for " + title + " is " + score)
+    custom = color_prommpt("Enter updated score: ")
+    if custom != "":
+        os.system('trackma -a ' + account + ' score "' + title + '" ' + custom)
+    else:
+        color_print("Skipping updating...")
+
+# update question
+def update_question(title, episode, score):
+    while True:
+        color_print("Skipping watching episodes. Modifing entry.")
+        choice = color_prommpt("Update episode number or update score [E/s]: ")
+        if choice == "e" or choice == "E":
+            update_title(title, episode)
+            break
+        elif choice == "s" or choice == "S":
+            update_score(title, score)
+            break
 
 # choose what to do with episode
 def choose_episode():
@@ -133,6 +168,7 @@ while True:
         title = get_title(full_choice)
         episode = get_episode(full_choice)
         last_episode = get_all_episodes(full_choice)
+        score = get_score(full_choice)
         while True:
             action = choose_episode()
             if action == "":
@@ -160,6 +196,7 @@ while True:
                 custom_episode(title, player)
                 break
             elif action == "u" or action == "U":
+                update_question(title, episode, score)
                 break
             elif action == "s" or action == "S":
                 break
