@@ -1,37 +1,45 @@
 import os, subprocess, sys
 from iterfzf import iterfzf
 from time import sleep
-account = "0"
-episode = ""
-retrieve = True
-player = "mpv"
 
+# global variables
+account = "0" # choose an account
+episode = "" # specific episode
+retrieve = True # retrieve new list
+player = "mpv" # specific player
+
+# colored print
 def color_print(text):
     print("\033[0;36m" + text + " \033[0m")
 
+# colored watch primpt
+def watch_primpt(title, episode):
+    print("Now watching \033[0;34m" + title + "\033[0m, episode \033[0;34m" + str(episode) + " \033[0m")
+
+# colored input
 def color_prommpt(text):
     return input("\033[0;34m" + text + "\033[0m")
 
-def print_list(alist):
-    for anime in alist:
-        print(alist[alist.index(anime)])
-
+# iter the list
 def iter_list(alist):
     for anime in alist:
         yield anime.strip()
         sleep(0.01)
 
+# retrieve new list
 def retrieve_list(account):
     color_print ("Running trackma retrieve for account " + account + "...")
     os.system("trackma -a " + account + " retrieve")
     os.system("cls")
 
+# load list
 def load_list(account):
     alist = subprocess.getoutput("trackma -a " + account + " list").splitlines()
     alist.pop(0)
     alist.pop()
     return alist
 
+# exit prompt
 def exit_ask():
     while True:
         os.system("cls")
@@ -42,25 +50,27 @@ def exit_ask():
             sys.exit()
         elif choice == "Y" or choice == "y":
             return
-    
-def get_title(choice):
-    full_choice = "".join(choice)
+
+def get_title(full_choice):
     full_choice = full_choice[9:55]
     full_choice = full_choice.rstrip(".")
     return full_choice
 
-def get_episode(choice):
-    full_choice = "".join(choice)
+def get_episode(full_choice):
     full_choice = full_choice[58:60]
     return int(full_choice)
 
-def get_all_episodes(choice):
-    full_choice = "".join(choice)
+def get_all_episodes(full_choice):
     full_choice = full_choice[63:65]
     return full_choice
 
 def next_episode(title,episode,player):
+    watch_primpt(title, episode)
     os.system('anime dl "'  + title + '" --episodes ' + str(episode + 1) + ' --play ' + player)
+
+def all_from_last(title,episode, last_episode, player):
+    watch_primpt(title, episode)
+    os.system('anime dl "'  + title + '" --episodes ' + str(episode + 1) + ':' + last_episode + ' --play ' + player)
 
 def choose_episode():
     os.system("cls")
@@ -85,17 +95,20 @@ while True:
     choice = iterfzf(iter_list(alist))
     
     if choice:
-        title = get_title(choice)
-        episode = get_episode(choice)
-        all_episodes = get_all_episodes(choice)
+        full_choice = "".join(choice)
+        title = get_title(full_choice)
+        episode = get_episode(full_choice)
+        all_episodes = get_all_episodes(full_choice)
         while True:
             action = choose_episode()
             if action == "":
                 next_episode(title, episode, player)
                 break
             elif action == "n" or action == "N":
+                next_episode(title, episode, player)
                 break
             elif action == "l" or action == "L":
+                all_from_last(title, episode,all_episodes, player)
                 break
             elif action == "a" or action == "A":
                 break
