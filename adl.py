@@ -1,4 +1,5 @@
 import os, subprocess, sys
+from symbol import continue_stmt
 from iterfzf import iterfzf
 from time import sleep
 
@@ -140,6 +141,15 @@ def update_question(title, episode, score):
             update_score(title, score)
             break
 
+# ask if you wanna continus watching
+def wanna_continu_watch():
+    while True:
+        yn = color_prommpt("Wanna continus watching?: ")
+        if yn == "y" or yn == "Y":
+            return True
+        elif yn == "n" or yn == "N":
+            return False
+
 # choose what to do with episode
 def choose_episode():
     os.system("cls")
@@ -169,14 +179,21 @@ while True:
         episode = get_episode(full_choice)
         last_episode = get_all_episodes(full_choice)
         score = get_score(full_choice)
+        watching = True
         while True:
-            action = choose_episode()
+            action = choose_episode(watching)
             if action == "":
                 next_episode(title, episode, player)
-                break
+                if wanna_continu_watch():
+                    continue
+                else:
+                    break
             elif action == "n" or action == "N":
                 next_episode(title, episode, player)
-                break
+                if wanna_continu_watch():
+                    continue
+                else:
+                    break
             elif action == "l" or action == "L":
                 all_from_last(title, episode,last_episode, player)
                 break
@@ -185,16 +202,28 @@ while True:
                 break
             elif action == "i" or action == "I":
                 custom_episode_range(title, player)
-                break
+                if wanna_continu_watch():
+                    continue
+                else:
+                    break
             elif action == "1" or action == "2" or action == "3" or action == "4" or action == "5" or action == "6" or action == "7" or action == "8" or action == "9":
                 next_plus_n(title, episode, player, action)
-                break
+                if wanna_continu_watch():
+                    continue
+                else:
+                    break
             elif action == "r" or action == "R":
                 rewatch_episode(title, episode, player)
-                break
+                if wanna_continu_watch():
+                    continue
+                else:
+                    break
             elif action == "c" or action == "C":
                 custom_episode(title, player)
-                break
+                if wanna_continu_watch():
+                    continue
+                else:
+                    break
             elif action == "u" or action == "U":
                 update_question(title, episode, score)
                 break
