@@ -1,5 +1,4 @@
 import os, subprocess, sys
-from symbol import continue_stmt
 from iterfzf import iterfzf
 from time import sleep
 
@@ -8,6 +7,7 @@ account = "0" # choose an account
 episode = "" # specific episode
 retrieve = True # retrieve new list
 player = "mpv" # specific player
+download = False # specify whether to download or not
 
 # colored print
 def color_print(text):
@@ -144,11 +144,21 @@ def update_question(title, episode, score):
 # ask if you wanna continus watching
 def wanna_continu_watch():
     while True:
-        yn = color_prommpt("Wanna continus watching?: ")
+        yn = color_prommpt("Wanna continue watching? [Y/n]: ")
         if yn == "y" or yn == "Y":
             return True
         elif yn == "n" or yn == "N":
             return False
+
+def wanna_update_title_after_watch(title, episode, score):
+    while True:
+        yn = color_prommpt("Wanna update episode number or update score of watched anime? [E/s]: ")
+        if yn == "E" or yn == "e":
+            update_title(title, episode)
+            break
+        elif yn == "S" or yn == "s":
+            update_score(title, score)
+            break
 
 # choose what to do with episode
 def choose_episode():
@@ -179,55 +189,63 @@ while True:
         episode = get_episode(full_choice)
         last_episode = get_all_episodes(full_choice)
         score = get_score(full_choice)
-        watching = True
         while True:
-            action = choose_episode(watching)
+            action = choose_episode()
             if action == "":
                 next_episode(title, episode, player)
                 if wanna_continu_watch():
                     continue
                 else:
+                    wanna_update_title_after_watch(title, episode, score)
                     break
             elif action == "n" or action == "N":
                 next_episode(title, episode, player)
                 if wanna_continu_watch():
                     continue
                 else:
+                    wanna_update_title_after_watch(title, episode, score)
                     break
             elif action == "l" or action == "L":
                 all_from_last(title, episode,last_episode, player)
+                wanna_update_title_after_watch(title, episode, score)
                 break
             elif action == "a" or action == "A":
                 all_episodes(title, player)
+                wanna_update_title_after_watch(title, episode, score)
                 break
             elif action == "i" or action == "I":
                 custom_episode_range(title, player)
                 if wanna_continu_watch():
                     continue
                 else:
+                    wanna_update_title_after_watch(title, episode, score)
                     break
             elif action == "1" or action == "2" or action == "3" or action == "4" or action == "5" or action == "6" or action == "7" or action == "8" or action == "9":
                 next_plus_n(title, episode, player, action)
                 if wanna_continu_watch():
                     continue
                 else:
+                    wanna_update_title_after_watch(title, episode, score)
                     break
             elif action == "r" or action == "R":
                 rewatch_episode(title, episode, player)
                 if wanna_continu_watch():
                     continue
                 else:
+                    wanna_update_title_after_watch(title, episode, score)
                     break
             elif action == "c" or action == "C":
                 custom_episode(title, player)
                 if wanna_continu_watch():
                     continue
                 else:
+                    wanna_update_title_after_watch(title, episode, score)
                     break
             elif action == "u" or action == "U":
                 update_question(title, episode, score)
                 break
             elif action == "s" or action == "S":
+                wanna_update_title_after_watch(title, episode, score)
                 break
     else:
         exit_ask()
