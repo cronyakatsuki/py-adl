@@ -32,6 +32,12 @@ def retrieve_list(account):
     color_print ("Running trackma retrieve for account " + account + "...")
     os.system("trackma -a " + account + " retrieve")
     os.system("cls")
+    
+# retrieve updated list
+def retrieve_list_update(account):
+    color_print("Running trackma retrieve for account " + account + " to get the updated list...")
+    os.system("trackma -a " + account + " retrieve")
+    os.system("cls")
 
 # load list
 def load_list(account):
@@ -129,6 +135,7 @@ def update_title(title, episode):
     if custom != "":
         os.system('trackma -a ' + account + ' update "' + title + '" ' + custom)
         os.system('trackma -a' + account + 'send')
+        retrieve_list_update(account)
     else:
         color_print("Skipping updating...")
 
@@ -139,6 +146,7 @@ def update_score(title, score):
     if custom != "":
         os.system('trackma -a ' + account + ' score "' + title + '" ' + custom)
         os.system('trackma -a' + account + 'send')
+        retrieve_list_update(account)
     else:
         color_print("Skipping updating...")
 
@@ -163,6 +171,7 @@ def wanna_continu_watch():
         elif yn == "n" or yn == "N":
             return False
 
+# ask if you wanna update title meta after watch
 def wanna_update_title_after_watch(title, episode, score):
     while True:
         yn = color_prommpt("Wanna update episode number or update score of watched anime? [N/e/s]: ")
