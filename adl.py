@@ -1,21 +1,48 @@
-import os, subprocess, sys
+import os, subprocess, sys, argparse
 from iterfzf import iterfzf
 from time import sleep
 
 # global variables
-account = "0" # choose an account
-episode = "" # specific episode
+account = "0" # trackma account
 retrieve = True # retrieve new list
 player = "mpv" # specific player
 download = False # specify whether to download or not
+msg = "watching"
 
+ap = argparse.ArgumentParser()
+
+ap.add_argument("-a", "--account", required=False,
+                help="By default trackma will use account 1. Use '-a 2' for example to change trackma account")
+ap.add_argument("-p", "--player", required=False,
+                help="Define player used for streaming. Ex: \033[0;36mpyadl -p mpv\033[0m")
+ap.add_argument("-d", "--download", required=False, type=bool, nargs='?', const=True, default=False,
+                help="Download instead of streaming")
+ap.add_argument("-v", "--version", required=False,
+                help="Display version and exit")
+
+args = vars(ap.parse_args())
+
+if args['account']:
+    account = str(int(args["account"]) - 1)
+
+if args["player"]:
+    player = str(args["player"])
+
+if args["download"]:
+    download = True
+    msg = "downloading"
+
+if args["version"]:
+    print("version: 0.1")
+    sys.exit()
+    
 # colored print
 def color_print(text):
     print("\033[0;36m" + text + " \033[0m")
 
 # colored watch primpt
 def watch_prompt(title, episode):
-    print("Now watching \033[0;34m" + title + "\033[0m, episode \033[0;34m" + str(episode) + " \033[0m")
+    print("Now " + msg + " \033[0;34m" + title + "\033[0m, episode \033[0;34m" + str(episode) + " \033[0m")
 
 # colored input
 def color_prommpt(text):
@@ -28,7 +55,7 @@ def iter_list(alist):
         sleep(0.01)
 
 # retrieve new list
-def retrieve_list(account):
+def retrieve_list():
     color_print ("Running trackma retrieve for account " + account + "...")
     os.system("trackma -a " + account + " retrieve")
     os.system("cls")
@@ -40,7 +67,7 @@ def retrieve_list_update(account):
     os.system("cls")
 
 # load list
-def load_list(account):
+def load_list():
     alist = subprocess.getoutput("trackma -a " + account + " list").splitlines()
     alist.pop(0)
     alist.pop()
@@ -80,53 +107,76 @@ def get_score(full_choice):
     return full_choice
 
 # next episode
-def next_episode(title,episode,player):
-    watch_next = True
-    while watch_next:
+def next_episode(title,episode):
+    if not download:
+        watch_next = True
+        while watch_next:
+            episode = episode + 1
+            watch_prompt(title, str(episode))
+            os.system('anime dl "'  + title + '" --episodes ' + str(episode) + ' --play ' + player)
+            while True:
+                color_print("Current watched episode: " + str(episode))
+                yn = color_prommpt("Wanna watch next episode? [Y/n]: ")
+                if yn == "Y" or yn == "y":
+                    break
+                elif yn == "N" or yn == "n":
+                    watch_next = False
+                    break
+    else:
         episode = episode + 1
         watch_prompt(title, str(episode))
-        os.system('anime dl "'  + title + '" --episodes ' + str(episode) + ' --play ' + player)
-        while True:
-            color_print("Current watched episode: " + str(episode))
-            yn = color_prommpt("Wanna watch next episode? [Y/n]: ")
-            if yn == "Y" or yn == "y":
-                break
-            elif yn == "N" or yn == "n":
-                watch_next = False
-                break
+        os.system('anime dl "'  + title + '" --episodes ' + str(episode))
 
 # all from last watched
-def all_from_last(title,episode, player):
+def all_from_last(title,episode):
     watch_prompt(title, str(episode) + " all left episodes")
-    os.system('anime dl "'  + title + '" --episodes ' + str(episode + 1) + ': --play' + player)
+    if not download:
+        os.system('anime dl "'  + title + '" --episodes ' + str(episode + 1) + ': --play' + player)
+    else:
+        os.system('anime dl "'  + title + '" --episodes ' + str(episode + 1) + ':')
 
 # all episode
-def all_episodes(title, player):
+def all_episodes(title):
     watch_prompt(title, "all")
-    os.system('anime dl "'  + title + '" --episodes 1: --play ' + player)
+    if not download:
+        os.system('anime dl "'  + title + '" --episodes 1: --play ' + player)
+    else:
+        os.system('anime dl "'  + title + '" --episodes 1:')
 
 # watch from custom range
-def custom_episode_range(title, player):
+def custom_episode_range(title):
     begginig = color_prommpt("Beggining of interval?: ")
     end = color_prommpt("End of interval?: ")
     watch_prompt(title, begginig + " to " + end)
-    os.system('anime dl "' + title + '" --episodes ' + begginig + ':' + end +' --play ' + player)
+    if not download:
+        os.system('anime dl "' + title + '" --episodes ' + begginig + ':' + end +' --play ' + player)
+    else:
+        os.system('anime dl "' + title + '" --episodes ' + begginig + ':' + end)
 
 # add to last watched m
-def next_plus_n(title, episode, player, action):
+def next_plus_n(title, episode, action):
     watch_prompt(title, str(episode + int(action)))
-    os.system('anime dl "'  + title + '" --episodes ' + str(episode + int(action)) + ' --play ' + player)
+    if not download:
+        os.system('anime dl "'  + title + '" --episodes ' + str(episode + int(action)) + ' --play ' + player)
+    else:
+        os.system('anime dl "'  + title + '" --episodes ' + str(episode + int(action)))
 
 # rewatch current episode
-def rewatch_episode(title, episode, player):
+def rewatch_episode(title, episode):
     watch_prompt(title, str(episode))
-    os.system('anime dl "' + title + '" --episodes ' + str(episode) + ' --play ' + player)
+    if not download:
+        os.system('anime dl "' + title + '" --episodes ' + str(episode) + ' --play ' + player)
+    else:
+        os.system('anime dl "' + title + '" --episodes ' + str(episode))
 
 # watch custom episode
-def custom_episode(title, player):
+def custom_episode(title):
     episode = color_prommpt("Enter custom episode: ")
     watch_prompt(title, episode)
-    os.system('anime dl "' + title + '" --episodes ' + episode + ' --play ' + player)
+    if not download:
+        os.system('anime dl "' + title + '" --episodes ' + episode + ' --play ' + player)
+    else:
+        os.system('anime dl "' + title + '" --episodes ' + episode)
     
 # update title
 def update_title(title, episode):
@@ -203,11 +253,11 @@ def choose_episode():
 while True:
     # retrieving the list on start
     if retrieve:
-        retrieve_list(account)
+        retrieve_list()
         retrieve = False
     
     # get the list of anime
-    alist = load_list(account)
+    alist = load_list()
     # choose an anime from the list
     choice = iterfzf(iter_list(alist))
     
@@ -229,27 +279,27 @@ while True:
             action = choose_episode()
             # watch next episode
             if action == "":
-                next_episode(title, episode, player)
+                next_episode(title, episode)
                 wanna_update_title_after_watch(title, episode, score)
                 break
             # same
             elif action == "n" or action == "N":
-                next_episode(title, episode, player)    
+                next_episode(title, episode)
                 wanna_update_title_after_watch(title, episode, score)
                 break
             # watch all left episodes
             elif action == "l" or action == "L":
-                all_from_last(title, episode,last_episode, player)
+                all_from_last(title, episode,last_episode)
                 wanna_update_title_after_watch(title, episode, score)
                 break
             # watch every episode available
             elif action == "a" or action == "A":
-                all_episodes(title, player)
+                all_episodes(title)
                 wanna_update_title_after_watch(title, episode, score)
                 break
             # custom range of episodes
             elif action == "i" or action == "I":
-                custom_episode_range(title, player)
+                custom_episode_range(title)
                 if wanna_continu_watch():
                     continue
                 else:
@@ -257,7 +307,7 @@ while True:
                     break
             # something?
             elif action == "1" or action == "2" or action == "3" or action == "4" or action == "5" or action == "6" or action == "7" or action == "8" or action == "9":
-                next_plus_n(title, episode, player, action)
+                next_plus_n(title, episode, action)
                 if wanna_continu_watch():
                     continue
                 else:
@@ -265,7 +315,7 @@ while True:
                     break
             # rewatch current episode
             elif action == "r" or action == "R":
-                rewatch_episode(title, episode, player)
+                rewatch_episode(title, episode)
                 if wanna_continu_watch():
                     continue
                 else:
@@ -273,7 +323,7 @@ while True:
                     break
             # watch custom episode
             elif action == "c" or action == "C":
-                custom_episode(title, player)
+                custom_episode(title)
                 if wanna_continu_watch():
                     continue
                 else:
