@@ -215,7 +215,10 @@ def update_question(title, episode, score):
 # ask if you wanna continus watching
 def wanna_continu_watch():
     while True:
-        yn = color_prommpt("Wanna continue watching? [Y/n]: ")
+        if not download:
+            yn = color_prommpt("Wanna continue watching? [Y/n]: ")
+        else:
+            yn = color_prommpt("Wanna continue downloading? [Y/n]: ")
         if yn == "y" or yn == "Y":
             return True
         elif yn == "n" or yn == "N":
@@ -223,16 +226,17 @@ def wanna_continu_watch():
 
 # ask if you wanna update title meta after watch
 def wanna_update_title_after_watch(title, episode, score):
-    while True:
-        yn = color_prommpt("Wanna update episode number or update score of watched anime? [N/e/s]: ")
-        if yn == "E" or yn == "e":
-            update_title(title, episode)
-            break
-        elif yn == "S" or yn == "s":
-            update_score(title, score)
-            break
-        elif yn == "N" or yn == "n":
-            break
+    if not download:
+        while True:
+            yn = color_prommpt("Wanna update episode number or update score of watched anime? [N/e/s]: ")
+            if yn == "E" or yn == "e":
+                update_title(title, episode)
+                break
+            elif yn == "S" or yn == "s":
+                update_score(title, score)
+                break
+            elif yn == "N" or yn == "n":
+                break
 
 # choose what to do with episode
 def choose_episode():
