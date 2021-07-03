@@ -117,6 +117,7 @@ def update_title(title, episode):
     custom = color_prommpt("Enter updated episode number: ")
     if custom != "":
         os.system('trackma -a ' + account + ' update "' + title + '" ' + custom)
+        os.system('trackma -a' + account + 'send')
     else:
         color_print("Skipping updating...")
 
@@ -126,6 +127,7 @@ def update_score(title, score):
     custom = color_prommpt("Enter updated score: ")
     if custom != "":
         os.system('trackma -a ' + account + ' score "' + title + '" ' + custom)
+        os.system('trackma -a' + account + 'send')
     else:
         color_print("Skipping updating...")
 
