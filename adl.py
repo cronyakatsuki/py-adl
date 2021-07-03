@@ -199,38 +199,55 @@ def choose_episode():
     color_print("   S - Skip. Choose another show.")
     return color_prommpt("Your choice? [N/l/a/i/0-9/r/c/u/s]: ")
 
+# main loop
 while True:
+    # retrieving the list on start
     if retrieve:
         retrieve_list(account)
         retrieve = False
     
+    # get the list of anime
     alist = load_list(account)
+    # choose an anime from the list
     choice = iterfzf(iter_list(alist))
     
     if choice:
+        # get the whole choice into a string
         full_choice = "".join(choice)
+        # get the title
         title = get_title(full_choice)
+        # get current episode
         episode = get_episode(full_choice)
+        # get latest episode
         last_episode = get_all_episodes(full_choice)
+        # get current score
         score = get_score(full_choice)
+        
+        # the watch loop
         while True:
+            # choose what to do with the choosen anime
             action = choose_episode()
+            # watch next episode
             if action == "":
                 next_episode(title, episode, player)
                 wanna_update_title_after_watch(title, episode, score)
                 break
+            # same
             elif action == "n" or action == "N":
                 next_episode(title, episode, player)    
                 wanna_update_title_after_watch(title, episode, score)
                 break
+            # watch all left episodes
             elif action == "l" or action == "L":
                 all_from_last(title, episode,last_episode, player)
                 wanna_update_title_after_watch(title, episode, score)
                 break
+            # watch every episode available
             elif action == "a" or action == "A":
                 all_episodes(title, player)
                 wanna_update_title_after_watch(title, episode, score)
                 break
+            # custom range of episodes
             elif action == "i" or action == "I":
                 custom_episode_range(title, player)
                 if wanna_continu_watch():
@@ -238,6 +255,7 @@ while True:
                 else:
                     wanna_update_title_after_watch(title, episode, score)
                     break
+            # something?
             elif action == "1" or action == "2" or action == "3" or action == "4" or action == "5" or action == "6" or action == "7" or action == "8" or action == "9":
                 next_plus_n(title, episode, player, action)
                 if wanna_continu_watch():
@@ -245,6 +263,7 @@ while True:
                 else:
                     wanna_update_title_after_watch(title, episode, score)
                     break
+            # rewatch current episode
             elif action == "r" or action == "R":
                 rewatch_episode(title, episode, player)
                 if wanna_continu_watch():
@@ -252,6 +271,7 @@ while True:
                 else:
                     wanna_update_title_after_watch(title, episode, score)
                     break
+            # watch custom episode
             elif action == "c" or action == "C":
                 custom_episode(title, player)
                 if wanna_continu_watch():
@@ -259,9 +279,11 @@ while True:
                 else:
                     wanna_update_title_after_watch(title, episode, score)
                     break
+            # update anime meta
             elif action == "u" or action == "U":
                 update_question(title, episode, score)
                 break
+            # skip the anime
             elif action == "s" or action == "S":
                 break
     else:
