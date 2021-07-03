@@ -7,7 +7,9 @@ account = "0" # trackma account
 retrieve = True # retrieve new list
 player = "mpv" # specific player
 download = False # specify whether to download or not
-msg = "watching"
+msg = "watching" # msg for the watch prompt
+good_title = open("good_title.txt").readlines() # the list of good titles
+problematic_titles = open("problem_title.txt").readlines() # list of problematic titles
 
 ap = argparse.ArgumentParser()
 
@@ -85,11 +87,19 @@ def exit_ask():
         elif choice == "Y" or choice == "y":
             return
 
+# check for problematic title
+def check_title(title):
+    for problem in problematic_titles:
+        if problem.__contains__(title):
+            title = good_title[problematic_titles.index(problem)]
+    return title
+
 # get your title
 def get_title(full_choice):
     full_choice = full_choice[9:55]
     full_choice = full_choice.rstrip(".")
-    return full_choice
+    title = check_title(full_choice)
+    return title
 
 # get episode
 def get_episode(full_choice):
@@ -184,18 +194,18 @@ def update_title(title, episode):
     custom = color_prommpt("Enter updated episode number: ")
     if custom != "":
         os.system('trackma -a ' + account + ' update "' + title + '" ' + custom)
-        os.system('trackma -a' + account + 'send')
+        os.system('trackma -a' + account + ' send')
         retrieve_list_update(account)
     else:
         color_print("Skipping updating...")
-
+  
 # update score
 def update_score(title, score):
     color_print("Current score for " + title + " is " + score)
     custom = color_prommpt("Enter updated score: ")
     if custom != "":
         os.system('trackma -a ' + account + ' score "' + title + '" ' + custom)
-        os.system('trackma -a' + account + 'send')
+        os.system('trackma -a' + account + ' send')
         retrieve_list_update(account)
     else:
         color_print("Skipping updating...")
