@@ -19,7 +19,7 @@ ap.add_argument("-p", "--player", required=False,
                 help="Define player used for streaming. Ex: \033[0;36mpyadl -p mpv\033[0m")
 ap.add_argument("-d", "--download", required=False, type=bool, nargs='?', const=True, default=False,
                 help="Download instead of streaming")
-ap.add_argument("-v", "--version", required=False,
+ap.add_argument("-v", "--version", required=False, nargs='?', const=True,
                 help="Display version and exit")
 
 args = vars(ap.parse_args())
@@ -35,7 +35,7 @@ if args["download"]:
     msg = "downloading"
 
 if args["version"]:
-    print("version: 0.1")
+    print("Pyadl version 0.1")
     sys.exit()
     
 # colored print
