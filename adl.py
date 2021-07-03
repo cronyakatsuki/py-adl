@@ -75,8 +75,19 @@ def get_score(full_choice):
 
 # next episode
 def next_episode(title,episode,player):
-    watch_prompt(title, str(episode))
-    os.system('anime dl "'  + title + '" --episodes ' + str(episode + 1) + ' --play ' + player)
+    watch_next = True
+    while watch_next:
+        episode = episode + 1
+        watch_prompt(title, str(episode))
+        os.system('anime dl "'  + title + '" --episodes ' + str(episode) + ' --play ' + player)
+        while True:
+            color_print("Current watched episode: " + str(episode))
+            yn = color_prommpt("Wanna watch next episode? [Y/n]: ")
+            if yn == "Y" or yn == "y":
+                break
+            elif yn == "N" or yn == "n":
+                watch_next = False
+                break
 
 # all from last watched
 def all_from_last(title,episode, player):
@@ -154,12 +165,14 @@ def wanna_continu_watch():
 
 def wanna_update_title_after_watch(title, episode, score):
     while True:
-        yn = color_prommpt("Wanna update episode number or update score of watched anime? [E/s]: ")
+        yn = color_prommpt("Wanna update episode number or update score of watched anime? [N/e/s]: ")
         if yn == "E" or yn == "e":
             update_title(title, episode)
             break
         elif yn == "S" or yn == "s":
             update_score(title, score)
+            break
+        elif yn == "N" or yn == "n":
             break
 
 # choose what to do with episode
@@ -195,18 +208,12 @@ while True:
             action = choose_episode()
             if action == "":
                 next_episode(title, episode, player)
-                if wanna_continu_watch():
-                    continue
-                else:
-                    wanna_update_title_after_watch(title, episode, score)
-                    break
+                wanna_update_title_after_watch(title, episode, score)
+                break
             elif action == "n" or action == "N":
-                next_episode(title, episode, player)
-                if wanna_continu_watch():
-                    continue
-                else:
-                    wanna_update_title_after_watch(title, episode, score)
-                    break
+                next_episode(title, episode, player)    
+                wanna_update_title_after_watch(title, episode, score)
+                break
             elif action == "l" or action == "L":
                 all_from_last(title, episode,last_episode, player)
                 wanna_update_title_after_watch(title, episode, score)
@@ -247,7 +254,6 @@ while True:
                 update_question(title, episode, score)
                 break
             elif action == "s" or action == "S":
-                wanna_update_title_after_watch(title, episode, score)
                 break
     else:
         exit_ask()
