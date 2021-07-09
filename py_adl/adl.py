@@ -14,11 +14,11 @@ def main():
     player = "mpv" # specific player
     download = False # specify whether to download or not
     msg = "watching" # msg for the watch prompt
-    good_title = open(dn + "/good_title.txt").readlines() # the list of good titles
-    problematic_titles = open(dn + "/problem_title.txt").readlines() # list of problematic titles
-    fzf_file = open(dn + "/fzf.txt", "w+")
-    fzf_file_path = dn +"/fzf.txt"
-    print_fzf_path = "python " + dn + "/print_fzf.py"
+    good_title = open(dn + "\\good_title.txt").readlines() # the list of good titles
+    problematic_titles = open(dn + "\\problem_title.txt").readlines() # list of problematic titles
+    fzf_file = open(dn + "\\fzf.txt", "w+")
+    fzf_file_path = dn +"\\fzf.txt"
+    print_fzf_path = "python " + dn + "\\print_fzf.py"
 
     ap = argparse.ArgumentParser()
 
