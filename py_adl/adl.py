@@ -1,9 +1,13 @@
 import os, subprocess, sys, argparse
-from iterfzf import iterfzf
-from time import sleep
 
-# global variables
 def main():
+    # exit function
+    def exit_adl():
+        fzf_file.close()
+        os.remove(fzf_file_path)
+        sys.exit()
+
+    # global variables
     dn = os.path.dirname(os.path.realpath(__file__))
     account = "0" # trackma account
     retrieve = True # retrieve new list
@@ -12,6 +16,9 @@ def main():
     msg = "watching" # msg for the watch prompt
     good_title = open(dn + "/good_title.txt").readlines() # the list of good titles
     problematic_titles = open(dn + "/problem_title.txt").readlines() # list of problematic titles
+    fzf_file = open(dn + "/fzf.txt", "w+")
+    fzf_file_path = dn +"/fzf.txt"
+    print_fzf_path = "python " + dn + "/print_fzf.py"
 
     ap = argparse.ArgumentParser()
 
@@ -38,8 +45,8 @@ def main():
 
     if args["version"]:
         print("Py-adl version 0.1")
-        sys.exit()
-        
+        exit_adl()
+    
     # colored print
     def color_print(text):
         print("\033[0;36m" + text + " \033[0m")
@@ -51,12 +58,6 @@ def main():
     # colored input
     def color_prommpt(text):
         return input("\033[0;34m" + text + "\033[0m")
-
-    # iter the list
-    def iter_list(alist):
-        for anime in alist:
-            yield anime.strip()
-            sleep(0.01)
 
     # retrieve new list
     def retrieve_list():
@@ -76,6 +77,13 @@ def main():
         alist.pop(0)
         alist.pop()
         return alist
+    
+    # write list to a file
+    def list2file(list, file):
+        for line in list:
+            file.write(line)
+            if not list.index(line) == len(list) - 1 :
+                file.write("\n")
 
     # exit prompt
     def exit_ask():
@@ -83,9 +91,9 @@ def main():
             os.system("cls")
             choice = color_prommpt("Want to watch another anime? [Y/n]: ")
             if choice == "":
-                sys.exit()
+                exit_adl()
             elif choice == "N" or choice == "n":
-                sys.exit()
+                exit_adl()
             elif choice == "Y" or choice == "y":
                 return
 
@@ -275,20 +283,24 @@ def main():
         
         # get the list of anime
         alist = load_list()
-        # choose an anime from the list
-        choice = iterfzf(iter_list(alist))
+        
+        # write list to file
+        list2file(alist, fzf_file)
+        
+        # reload file (I Guess ??)
+        fzf_file.seek(0)
+        
+        choice = subprocess.getoutput(print_fzf_path + ' | fzf --ansi --reverse --prompt "Choose anime to watch: "')
         
         if choice:
-            # get the whole choice into a string
-            full_choice = "".join(choice)
             # get the title
-            title = get_title(full_choice)
+            title = get_title(choice)
             # get current episode
-            episode = get_episode(full_choice)
+            episode = get_episode(choice)
             # get latest episode
-            last_episode = get_all_episodes(full_choice)
+            last_episode = get_all_episodes(choice)
             # get current score
-            score = get_score(full_choice)
+            score = get_score(choice)
             
             # the watch loop
             while True:
