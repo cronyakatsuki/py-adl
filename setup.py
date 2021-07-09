@@ -5,10 +5,10 @@ try:
 except IOError:
     LONG_DESCRIPTION = __doc__
 
-VERSION = '0.1.33'
+VERSION = '0.1.4'
 NAME = "py-adl"
 DESCRIPTION = 'Python wrapper for trackma and anime-downloader'
-REQUIREMENTS = ['trackma', 'pillow', 'iterfzf']
+REQUIREMENTS = ['trackma', 'pillow']
 
 setup(
     name=NAME,
