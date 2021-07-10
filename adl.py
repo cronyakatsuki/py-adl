@@ -140,6 +140,10 @@ def get_score(choice):
     choice = choice[68:71]
     return choice
 
+# watch anime
+def watch(cmd):
+    os.system(cmd)
+
 # next episode
 def next_episode(title,episode):
     if not download:
@@ -147,7 +151,7 @@ def next_episode(title,episode):
         while watch_next:
             episode = episode + 1
             watch_prompt(title, str(episode))
-            subprocess.call('anime dl "'  + title + '" --episodes ' + str(episode) + ' --play ' + player)
+            watch('anime dl "'  + title + '" --episodes ' + str(episode) + ' --play ' + player)
             while True:
                 color_print("Current watched episode: " + str(episode))
                 yn = color_prommpt("Wanna watch next episode? [Y/n]: ")
@@ -159,23 +163,23 @@ def next_episode(title,episode):
     else:
         episode = episode + 1
         watch_prompt(title, str(episode))
-        subprocess.call('anime dl "'  + title + '" --episodes ' + str(episode))
+        watch('anime dl "'  + title + '" --episodes ' + str(episode))
 
 # all from last watched
 def all_from_last(title,episode):
     watch_prompt(title, str(episode) + " all left episodes")
     if not download:
-        subprocess.call('anime dl "'  + title + '" --episodes ' + str(episode + 1) + ': --play s' + player)
+        watch('anime dl "'  + title + '" --episodes ' + str(episode + 1) + ': --play s' + player)
     else:
-        subprocess.call('anime dl "'  + title + '" --episodes ' + str(episode + 1) + ':')
+        watch('anime dl "'  + title + '" --episodes ' + str(episode + 1) + ':')
 
 # all episode
 def all_episodes(title):
     watch_prompt(title, "all")
     if not download:
-        subprocess.call('anime dl "'  + title + '" --episodes 1: --play ' + player)
+        watch('anime dl "'  + title + '" --episodes 1: --play ' + player)
     else:
-        subprocess.call('anime dl "'  + title + '" --episodes 1:')
+        watch('anime dl "'  + title + '" --episodes 1:')
 
 # watch from custom range
 def custom_episode_range(title):
@@ -183,34 +187,34 @@ def custom_episode_range(title):
     end = color_prommpt("End of interval?: ")
     watch_prompt(title, begginig + " to " + end)
     if not download:
-        subprocess.call('anime dl "' + title + '" --episodes ' + begginig + ':' + end +' --play ' + player)
+        watch('anime dl "' + title + '" --episodes ' + begginig + ':' + end +' --play ' + player)
     else:
-        subprocess.call('anime dl "' + title + '" --episodes ' + begginig + ':' + end)
+        watch('anime dl "' + title + '" --episodes ' + begginig + ':' + end)
 
 # add to last watched m
 def next_plus_n(title, episode, action):
     watch_prompt(title, str(episode + int(action)))
     if not download:
-        subprocess.call('anime dl "'  + title + '" --episodes ' + str(episode + int(action)) + ' --play ' + player)
+        watch('anime dl "'  + title + '" --episodes ' + str(episode + int(action)) + ' --play ' + player)
     else:
-        subprocess.call('anime dl "'  + title + '" --episodes ' + str(episode + int(action)))
+        watch('anime dl "'  + title + '" --episodes ' + str(episode + int(action)))
 
 # rewatch current episode
 def rewatch_episode(title, episode):
     watch_prompt(title, str(episode))
     if not download:
-        subprocess.call('anime dl "' + title + '" --episodes ' + str(episode) + ' --play ' + player)
+        watch('anime dl "' + title + '" --episodes ' + str(episode) + ' --play ' + player)
     else:
-        subprocess.call('anime dl "' + title + '" --episodes ' + str(episode))
+        watch('anime dl "' + title + '" --episodes ' + str(episode))
 
 # watch custom episode
 def custom_episode(title):
     episode = color_prommpt("Enter custom episode: ")
     watch_prompt(title, episode)
     if not download:
-        subprocess.call('anime dl "' + title + '" --episodes ' + episode + ' --play ' + player)
+        watch('anime dl "' + title + '" --episodes ' + episode + ' --play ' + player)
     else:
-        subprocess.call('anime dl "' + title + '" --episodes ' + episode)
+        watch('anime dl "' + title + '" --episodes ' + episode)
     
 # update title
 def update_title(title, episode):
@@ -286,7 +290,6 @@ def choose_episode():
     color_print("   U - Update entry chosen instead of streaming")
     color_print("   S - Skip. Choose another show.")
     return color_prommpt("Your choice? [N/l/a/i/0-9/r/c/u/s]: ")
-
 
 # main loop
 while True:
