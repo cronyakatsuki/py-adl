@@ -43,7 +43,7 @@ if args["download"]:
     msg = "downloading"
 
 if args["version"]:
-    print("Py-adl version 0.1")
+    print("Py-adl version 0.1.1")
     exit_adl()
 
 # colored print
@@ -61,14 +61,14 @@ def color_prommpt(text):
 # retrieve new list
 def retrieve_list():
     color_print ("Running trackma retrieve for account " + account + "...")
-    os.system("trackma -a " + account + " retrieve")
-    os.system("cls")
+    subprocess.call("trackma -a " + account + " retrieve")
+    subprocess.call("cls", shell=True)
     
 # retrieve updated list
 def retrieve_list_update(account):
     color_print("Running trackma retrieve for account " + account + " to get the updated list...")
-    os.system("trackma -a " + account + " retrieve")
-    os.system("cls")
+    subprocess.call("trackma -a " + account + " retrieve")
+    subprocess.call("cls", shell=True)
 
 # load list
 def load_list():
@@ -87,7 +87,7 @@ def list2file(list, file):
 # exit prompt
 def exit_ask():
     while True:
-        os.system("cls")
+        subprocess.call("cls", shell=True)
         choice = color_prommpt("Want to watch another anime? [Y/n]: ")
         if choice == "":
             exit_adl()
@@ -132,7 +132,7 @@ def next_episode(title,episode):
         while watch_next:
             episode = episode + 1
             watch_prompt(title, str(episode))
-            os.system('anime dl "'  + title + '" --episodes ' + str(episode) + ' --play ' + player)
+            subprocess.call('anime dl "'  + title + '" --episodes ' + str(episode) + ' --play ' + player)
             while True:
                 color_print("Current watched episode: " + str(episode))
                 yn = color_prommpt("Wanna watch next episode? [Y/n]: ")
@@ -144,23 +144,23 @@ def next_episode(title,episode):
     else:
         episode = episode + 1
         watch_prompt(title, str(episode))
-        os.system('anime dl "'  + title + '" --episodes ' + str(episode))
+        subprocess.call('anime dl "'  + title + '" --episodes ' + str(episode))
 
 # all from last watched
 def all_from_last(title,episode):
     watch_prompt(title, str(episode) + " all left episodes")
     if not download:
-        os.system('anime dl "'  + title + '" --episodes ' + str(episode + 1) + ': --play' + player)
+        subprocess.call('anime dl "'  + title + '" --episodes ' + str(episode + 1) + ': --play' + player)
     else:
-        os.system('anime dl "'  + title + '" --episodes ' + str(episode + 1) + ':')
+        subprocess.call('anime dl "'  + title + '" --episodes ' + str(episode + 1) + ':')
 
 # all episode
 def all_episodes(title):
     watch_prompt(title, "all")
     if not download:
-        os.system('anime dl "'  + title + '" --episodes 1: --play ' + player)
+        subprocess.call('anime dl "'  + title + '" --episodes 1: --play ' + player)
     else:
-        os.system('anime dl "'  + title + '" --episodes 1:')
+        subprocess.call('anime dl "'  + title + '" --episodes 1:')
 
 # watch from custom range
 def custom_episode_range(title):
@@ -168,42 +168,42 @@ def custom_episode_range(title):
     end = color_prommpt("End of interval?: ")
     watch_prompt(title, begginig + " to " + end)
     if not download:
-        os.system('anime dl "' + title + '" --episodes ' + begginig + ':' + end +' --play ' + player)
+        subprocess.call('anime dl "' + title + '" --episodes ' + begginig + ':' + end +' --play ' + player)
     else:
-        os.system('anime dl "' + title + '" --episodes ' + begginig + ':' + end)
+        subprocess.call('anime dl "' + title + '" --episodes ' + begginig + ':' + end)
 
 # add to last watched m
 def next_plus_n(title, episode, action):
     watch_prompt(title, str(episode + int(action)))
     if not download:
-        os.system('anime dl "'  + title + '" --episodes ' + str(episode + int(action)) + ' --play ' + player)
+        subprocess.call('anime dl "'  + title + '" --episodes ' + str(episode + int(action)) + ' --play ' + player)
     else:
-        os.system('anime dl "'  + title + '" --episodes ' + str(episode + int(action)))
+        subprocess.call('anime dl "'  + title + '" --episodes ' + str(episode + int(action)))
 
 # rewatch current episode
 def rewatch_episode(title, episode):
     watch_prompt(title, str(episode))
     if not download:
-        os.system('anime dl "' + title + '" --episodes ' + str(episode) + ' --play ' + player)
+        subprocess.call('anime dl "' + title + '" --episodes ' + str(episode) + ' --play ' + player)
     else:
-        os.system('anime dl "' + title + '" --episodes ' + str(episode))
+        subprocess.call('anime dl "' + title + '" --episodes ' + str(episode))
 
 # watch custom episode
 def custom_episode(title):
     episode = color_prommpt("Enter custom episode: ")
     watch_prompt(title, episode)
     if not download:
-        os.system('anime dl "' + title + '" --episodes ' + episode + ' --play ' + player)
+        subprocess.call('anime dl "' + title + '" --episodes ' + episode + ' --play ' + player)
     else:
-        os.system('anime dl "' + title + '" --episodes ' + episode)
+        subprocess.call('anime dl "' + title + '" --episodes ' + episode)
     
 # update title
 def update_title(title, episode):
     color_print("Current episode for " + title + " is " + str(episode))
     custom = color_prommpt("Enter updated episode number: ")
     if custom != "":
-        os.system('trackma -a ' + account + ' update "' + title + '" ' + custom)
-        os.system('trackma -a' + account + ' send')
+        subprocess.call('trackma -a ' + account + ' update "' + title + '" ' + custom)
+        subprocess.call('trackma -a' + account + ' send')
         retrieve_list_update(account)
     else:
         color_print("Skipping updating...")
@@ -213,8 +213,8 @@ def update_score(title, score):
     color_print("Current score for " + title + " is " + score)
     custom = color_prommpt("Enter updated score: ")
     if custom != "":
-        os.system('trackma -a ' + account + ' score "' + title + '" ' + custom)
-        os.system('trackma -a' + account + ' send')
+        subprocess.call('trackma -a ' + account + ' score "' + title + '" ' + custom)
+        subprocess.call('trackma -a' + account + ' send')
         retrieve_list_update(account)
     else:
         color_print("Skipping updating...")
@@ -259,7 +259,7 @@ def wanna_update_title_after_watch(title, episode, score):
 
 # choose what to do with episode
 def choose_episode():
-    os.system("cls")
+    subprocess.call("cls", shell=True)
     color_print("Enter lowercase or uppercase to issue command:")
     color_print("   N - Next episode (default, press <ENTER>)")
     color_print("   L - from current to Last known:")
@@ -289,6 +289,7 @@ while True:
     # reload file (I Guess ??)
     fzf_file.seek(0)
     
+    # get choice from fzf
     choice = subprocess.getoutput(print_fzf_path + ' | fzf --ansi --reverse --prompt "Choose anime to watch: "')
     
     if choice:
