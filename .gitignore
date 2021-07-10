@@ -1,3 +1,6 @@
 /py_adl.egg-info
 /dist
 /py_adl/__pycache__
+/build
+/__pycache__
+/*.spec
