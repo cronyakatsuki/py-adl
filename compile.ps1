@@ -1,0 +1,1 @@
+pyinstaller .\adl.py --onefile --add-data 'good_title.txt;.' --add-data '.\problem_title.txt;.' --add-data '.\print_fzf.py;.'
