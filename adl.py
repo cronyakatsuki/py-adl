@@ -1,24 +1,6 @@
 import os, subprocess, sys, argparse
 
-# exit function
-def exit_adl():
-    fzf_file.close()
-    os.remove(fzf_file_path)
-    sys.exit()
-
-# global variables
-dn = os.path.dirname(os.path.realpath(__file__))
-account = "0" # trackma account
-retrieve = True # retrieve new list
-player = "mpv" # specific player
-download = False # specify whether to download or not
-msg = "watching" # msg for the watch prompt
-good_title = open(dn + "/good_title.txt").readlines() # the list of good titles
-problematic_titles = open(dn + "/problem_title.txt").readlines() # list of problematic titles
-fzf_file = open(dn + "/fzf.txt", "w+")
-fzf_file_path = dn +"/fzf.txt"
-print_fzf_path = "python " + dn + "/print_fzf.py"
-
+# argument parser
 ap = argparse.ArgumentParser()
 
 ap.add_argument("-a", "--account", required=False,
@@ -29,22 +11,55 @@ ap.add_argument("-d", "--download", required=False, type=bool, nargs='?', const=
                 help="Download instead of streaming")
 ap.add_argument("-v", "--version", required=False, nargs='?', const=True,
                 help="Display version and exit")
+ap.add_argument("-r", "--retrieve", required=False, nargs='?', const=True,
+                help="Don't retrieve trackma list on startup")
 
 args = vars(ap.parse_args())
 
+# get account
 if args['account']:
-    account = str(int(args["account"]) - 1)
+    account = str(int(args["account"]) - 1) # take the account from input
+else:
+    account = "0" # default account
 
+# get player
 if args["player"]:
-    player = str(args["player"])
-
+    player = str(args["player"]) # get player from user
+else:
+    player = "mpv" # default player
+    
+# enable downloading
 if args["download"]:
-    download = True
-    msg = "downloading"
+    download = True # enable downloading
+    msg = "downloading" # download message
+else:
+    download = False # specify whether to download or not
+    msg = "watching" # msg for the watch prompt
 
+# print the version
 if args["version"]:
     print("Py-adl version 0.1.1")
-    exit_adl()
+    sys.exit()
+
+# don't retrieve on startup
+if args["retrieve"]:
+    retrieve = False
+else:
+    retrieve = True # retrieve new list
+
+# exit function
+def exit_adl():
+    fzf_file.close()
+    os.remove(fzf_file_path)
+    sys.exit()
+
+# required files
+dn = os.path.dirname(os.path.realpath(__file__)) # get current directory of the script
+good_title = open(dn + "/good_title.txt").readlines() # the list of good titles
+problematic_titles = open(dn + "/problem_title.txt").readlines() # list of problematic titles
+fzf_file = open(dn + "/fzf.txt", "w+") # temp file for fzf
+fzf_file_path = dn +"/fzf.txt" # path of the temp file
+print_fzf_path = "python " + dn + "/print_fzf.py" # print the fzf file
 
 # colored print
 def color_print(text):
@@ -65,7 +80,7 @@ def retrieve_list():
     subprocess.call("cls", shell=True)
     
 # retrieve updated list
-def retrieve_list_update(account):
+def retrieve_list_update():
     color_print("Running trackma retrieve for account " + account + " to get the updated list...")
     subprocess.call("trackma -a " + account + " retrieve")
     subprocess.call("cls", shell=True)
@@ -104,26 +119,26 @@ def check_title(title):
     return title
 
 # get your title
-def get_title(full_choice):
-    full_choice = full_choice[9:55]
-    full_choice = full_choice.rstrip(".")
-    title = check_title(full_choice)
+def get_title(choice):
+    choice = choice[9:55]
+    choice = choice.rstrip(".")
+    title = check_title(choice)
     return title
 
 # get episode
-def get_episode(full_choice):
-    full_choice = full_choice[58:60]
-    return int(full_choice)
+def get_episode(choice):
+    choice = choice[58:60]
+    return int(choice)
 
 # get all episodes
-def get_all_episodes(full_choice):
-    full_choice = full_choice[63:65]
-    return full_choice
+def get_all_episodes(choice):
+    choice = choice[63:65]
+    return choice
 
 # get score
-def get_score(full_choice):
-    full_choice = full_choice[68:71]
-    return full_choice
+def get_score(choice):
+    choice = choice[68:71]
+    return choice
 
 # next episode
 def next_episode(title,episode):
@@ -150,7 +165,7 @@ def next_episode(title,episode):
 def all_from_last(title,episode):
     watch_prompt(title, str(episode) + " all left episodes")
     if not download:
-        subprocess.call('anime dl "'  + title + '" --episodes ' + str(episode + 1) + ': --play' + player)
+        subprocess.call('anime dl "'  + title + '" --episodes ' + str(episode + 1) + ': --play s' + player)
     else:
         subprocess.call('anime dl "'  + title + '" --episodes ' + str(episode + 1) + ':')
 
@@ -318,7 +333,7 @@ while True:
                 break
             # watch all left episodes
             elif action == "l" or action == "L":
-                all_from_last(title, episode,last_episode)
+                all_from_last(title, episode)
                 wanna_update_title_after_watch(title, episode, score)
                 break
             # watch every episode available
