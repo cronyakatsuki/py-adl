@@ -1,4 +1,5 @@
-import os, subprocess, sys, argparse
+import os, subprocess, sys, argparse, signal
+from time import sleep
 
 # argument parser
 ap = argparse.ArgumentParser()
@@ -140,9 +141,9 @@ def get_score(choice):
     choice = choice[68:71]
     return choice
 
-# watch anime
+# watch animes
 def watch(cmd):
-    os.system(cmd)
+    subprocess.run(cmd)
 
 # next episode
 def next_episode(title,episode):
@@ -275,6 +276,11 @@ def wanna_update_title_after_watch(title, episode, score):
                 break
             elif yn == "N" or yn == "n":
                 break
+
+def interupt_command(signum, frame):
+    exit_adl()
+
+signal.signal(signal.SIGINT, interupt_command)
 
 # choose what to do with episode
 def choose_episode():
