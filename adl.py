@@ -318,16 +318,19 @@ while True:
             if action == "n" or action == "N" or action == "":
                 next_episode(title, episode)
                 wanna_update_title_after_watch(title, episode, score)
+                exit_ask()
                 break
             # watch all left episodes
             elif action == "l" or action == "L":
                 all_from_last(title, episode)
                 wanna_update_title_after_watch(title, episode, score)
+                exit_ask()
                 break
             # watch every episode available
             elif action == "a" or action == "A":
                 all_episodes(title)
                 wanna_update_title_after_watch(title, episode, score)
+                exit_ask()
                 break
             # custom range of episodes
             elif action == "i" or action == "I":
@@ -336,6 +339,7 @@ while True:
                     continue
                 else:
                     wanna_update_title_after_watch(title, episode, score)
+                    exit_ask()
                     break
             # something?
             elif action == "1" or action == "2" or action == "3" or action == "4" or action == "5" or action == "6" or action == "7" or action == "8" or action == "9":
@@ -344,6 +348,7 @@ while True:
                     continue
                 else:
                     wanna_update_title_after_watch(title, episode, score)
+                    exit_ask()
                     break
             # rewatch current episode
             elif action == "r" or action == "R":
@@ -352,6 +357,7 @@ while True:
                     continue
                 else:
                     wanna_update_title_after_watch(title, episode, score)
+                    exit_ask()
                     break
             # watch custom episode
             elif action == "c" or action == "C":
@@ -360,10 +366,12 @@ while True:
                     continue
                 else:
                     wanna_update_title_after_watch(title, episode, score)
+                    exit_ask()
                     break
             # update anime meta
             elif action == "u" or action == "U":
                 update_question(title, episode, score)
+                exit_ask()
                 break
             # skip the anime
             elif action == "s" or action == "S":
