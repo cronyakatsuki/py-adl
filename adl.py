@@ -4,10 +4,10 @@ from time import sleep
 # argument parser
 ap = argparse.ArgumentParser()
 
-ap.add_argument("-a", "--account", required=False,
-                help="By default trackma will use account 1. Use '-a 2' for example to change trackma account")
 ap.add_argument("-p", "--player", required=False,
                 help="Define player used for streaming. Ex: \033[0;36mpyadl -p mpv\033[0m")
+ap.add_argument("-a", "--account", required=False,
+                help="By default trackma will use account 1. Use '-a 2' for example to change trackma account")
 ap.add_argument("-d", "--download", required=False, type=bool, nargs='?', const=True, default=False,
                 help="Download instead of streaming")
 ap.add_argument("-v", "--version", required=False, nargs='?', const=True,
@@ -145,8 +145,11 @@ def get_score(choice):
     return choice
 
 # watch animes
-def watch(cmd):
-    subprocess.run(cmd)
+def watch(title, episode):
+    if not download:
+        subprocess.run('anime dl "' + title + '" --episodes ' + episode + ' --play ' + player)
+    else:
+        subprocess.run('anime dl "' + title + '" --episodes ' + episode)
 
 # next episode
 def next_episode(title,episode):
@@ -155,7 +158,7 @@ def next_episode(title,episode):
         while watch_next:
             episode = episode + 1
             watch_prompt(title, str(episode))
-            watch('anime dl "'  + title + '" --episodes ' + str(episode) + ' --play ' + player)
+            watch(title, str(episode))
             while True:
                 color_print("Current watched episode: " + str(episode))
                 yn = color_prommpt("Wanna watch next episode? [Y/n]: ")
@@ -167,58 +170,40 @@ def next_episode(title,episode):
     else:
         episode = episode + 1
         watch_prompt(title, str(episode))
-        watch('anime dl "'  + title + '" --episodes ' + str(episode))
+        watch(title, str(episode))
 
 # all from last watched
 def all_from_last(title,episode):
     watch_prompt(title, str(episode) + " all left episodes")
-    if not download:
-        watch('anime dl "'  + title + '" --episodes ' + str(episode + 1) + ': --play s' + player)
-    else:
-        watch('anime dl "'  + title + '" --episodes ' + str(episode + 1) + ':')
+    watch(title, str(episode + 1) + ':')
 
 # all episode
 def all_episodes(title):
     watch_prompt(title, "all")
-    if not download:
-        watch('anime dl "'  + title + '" --episodes 1: --play ' + player)
-    else:
-        watch('anime dl "'  + title + '" --episodes 1:')
+    watch(title, '1:')
 
 # watch from custom range
 def custom_episode_range(title):
     begginig = color_prommpt("Beggining of interval?: ")
     end = color_prommpt("End of interval?: ")
     watch_prompt(title, begginig + " to " + end)
-    if not download:
-        watch('anime dl "' + title + '" --episodes ' + begginig + ':' + end +' --play ' + player)
-    else:
-        watch('anime dl "' + title + '" --episodes ' + begginig + ':' + end)
+    watch(title, begginig + ':' + end)
 
 # add to last watched m
 def next_plus_n(title, episode, action):
     watch_prompt(title, str(episode + int(action)))
-    if not download:
-        watch('anime dl "'  + title + '" --episodes ' + str(episode + int(action)) + ' --play ' + player)
-    else:
-        watch('anime dl "'  + title + '" --episodes ' + str(episode + int(action)))
+    watch(title, str(episode + int(action)) )
 
 # rewatch current episode
 def rewatch_episode(title, episode):
     watch_prompt(title, str(episode))
-    if not download:
-        watch('anime dl "' + title + '" --episodes ' + str(episode) + ' --play ' + player)
-    else:
-        watch('anime dl "' + title + '" --episodes ' + str(episode))
+    watch(title, str(episode))
 
 # watch custom episode
 def custom_episode(title):
     episode = color_prommpt("Enter custom episode: ")
     watch_prompt(title, episode)
-    if not download:
-        watch('anime dl "' + title + '" --episodes ' + episode + ' --play ' + player)
-    else:
-        watch('anime dl "' + title + '" --episodes ' + episode)
+    watch(title, episode)
     
 # update title
 def update_title(title, episode):
