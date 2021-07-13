@@ -48,12 +48,6 @@ if args["retrieve"]:
 else:
     retrieve = True # retrieve new list
 
-# exit function
-def exit_adl():
-    fzf_file.close()
-    os.remove(fzf_file_path)
-    sys.exit()
-
 # required files
 dn = os.path.dirname(os.path.realpath(__file__)) # get current directory of the script
 good_title = open(dn + "/good_title.txt").readlines() # the list of good titles
@@ -61,6 +55,17 @@ problematic_titles = open(dn + "/problem_title.txt").readlines() # list of probl
 fzf_file = open(dn + "/fzf.txt", "w+") # temp file for fzf
 fzf_file_path = dn +"/fzf.txt" # path of the temp file
 print_fzf_path = "python " + dn + "/print_fzf.py" # print the fzf file
+
+# exit function
+def exit_adl():
+    fzf_file.close()
+    os.remove(fzf_file_path)
+    sys.exit()
+
+def interupt_command(signum, frame):
+    exit_adl()
+
+signal.signal(signal.SIGINT, interupt_command)
 
 # colored print
 def color_print(text):
@@ -105,11 +110,9 @@ def exit_ask():
     while True:
         subprocess.call("cls", shell=True)
         choice = color_prommpt("Want to watch another anime? [Y/n]: ")
-        if choice == "":
+        if choice == "N" or choice == "n":
             exit_adl()
-        elif choice == "N" or choice == "n":
-            exit_adl()
-        elif choice == "Y" or choice == "y":
+        elif choice == "Y" or choice == "y" or choice == "":
             return
 
 # check for problematic title
@@ -156,7 +159,7 @@ def next_episode(title,episode):
             while True:
                 color_print("Current watched episode: " + str(episode))
                 yn = color_prommpt("Wanna watch next episode? [Y/n]: ")
-                if yn == "Y" or yn == "y":
+                if yn == "Y" or yn == "y" or yn == "":
                     break
                 elif yn == "N" or yn == "n":
                     watch_next = False
@@ -244,7 +247,7 @@ def update_question(title, episode, score):
     while True:
         color_print("Skipping watching episodes. Modifing entry.")
         choice = color_prommpt("Update episode number or update score [E/s]: ")
-        if choice == "e" or choice == "E":
+        if choice == "e" or choice == "E" or choice == "":
             update_title(title, episode)
             break
         elif choice == "s" or choice == "S":
@@ -258,7 +261,7 @@ def wanna_continu_watch():
             yn = color_prommpt("Wanna continue watching? [Y/n]: ")
         else:
             yn = color_prommpt("Wanna continue downloading? [Y/n]: ")
-        if yn == "y" or yn == "Y":
+        if yn == "y" or yn == "Y" or yn == "":
             return True
         elif yn == "n" or yn == "N":
             return False
@@ -274,13 +277,9 @@ def wanna_update_title_after_watch(title, episode, score):
             elif yn == "S" or yn == "s":
                 update_score(title, score)
                 break
-            elif yn == "N" or yn == "n":
+            elif yn == "N" or yn == "n" or yn == "":
                 break
 
-def interupt_command(signum, frame):
-    exit_adl()
-
-signal.signal(signal.SIGINT, interupt_command)
 
 # choose what to do with episode
 def choose_episode():
@@ -331,12 +330,7 @@ while True:
             # choose what to do with the choosen anime
             action = choose_episode()
             # watch next episode
-            if action == "":
-                next_episode(title, episode)
-                wanna_update_title_after_watch(title, episode, score)
-                break
-            # same
-            elif action == "n" or action == "N":
+            if action == "n" or action == "N" or action == "":
                 next_episode(title, episode)
                 wanna_update_title_after_watch(title, episode, score)
                 break
