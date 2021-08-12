@@ -57,7 +57,7 @@ else:
 
 # print the version
 if args["version"]:
-    print("Py-adl version 0.1.1")
+    print("Py-adl version 0.2")
     sys.exit()
 
 # don't retrieve on startup
@@ -288,7 +288,6 @@ def wanna_update_title_after_watch(title, episode, score):
             elif yn == "N" or yn == "n" or yn == "":
                 break
 
-
 # choose what to do with episode
 def choose_episode():
     subprocess.call("cls", shell=True)
@@ -315,28 +314,28 @@ def choose_episode_specific_show():
     
 if not show == "":
     while True:
-                # choose what to do with the choosen anime
-                action = choose_episode_specific_show()
-                if action == "a" or action == "A" or action == "":
-                    all_episodes(show)
-                    exit_adl()
-                # custom range of episodes
-                elif action == "i" or action == "I":
-                    custom_episode_range(show)
-                    if wanna_continu_watch():
-                        continue
-                    else:
-                        exit_adl()
-                # watch custom episode
-                elif action == "c" or action == "C":
-                    custom_episode(show)
-                    if wanna_continu_watch():
-                        continue
-                    else:
-                        exit_adl()
-                # skip the anime
-                elif action == "s" or action == "S":
-                    exit_adl()
+        # choose what to do with the choosen anime
+        action = choose_episode_specific_show()
+        if action == "a" or action == "A" or action == "":
+            all_episodes(show)
+            exit_adl()
+        # custom range of episodes
+        elif action == "i" or action == "I":
+            custom_episode_range(show)
+            if wanna_continu_watch():
+                continue
+            else:
+                exit_adl()
+        # watch custom episode
+        elif action == "c" or action == "C":
+            custom_episode(show)
+            if wanna_continu_watch():
+                continue
+            else:
+                exit_adl()
+        # skip the anime
+        elif action == "s" or action == "S":
+            exit_adl()
 else:
     # main loop
     while True:
