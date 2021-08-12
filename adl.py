@@ -74,6 +74,10 @@ fzf_file = open(dn + "/fzf.txt", "w+") # temp file for fzf
 fzf_file_path = dn +"/fzf.txt" # path of the temp file
 print_fzf_path = "python " + dn + "/print_fzf.py" # print the fzf file
 
+# setup env variables for better readability of outputs
+os.environ['LINES'] = '25'
+os.environ['COLUMNS'] = '120'
+
 # exit function
 def exit_adl():
     fzf_file.close()
@@ -142,24 +146,24 @@ def check_title(title):
 
 # get your title
 def get_title(choice):
-    choice = choice[9:55]
+    choice = choice[9:96]
     choice = choice.rstrip(".")
     title = check_title(choice)
     return title
 
 # get episode
 def get_episode(choice):
-    choice = choice[58:60]
+    choice = choice[98:100]
     return int(choice)
 
 # get all episodes
 def get_all_episodes(choice):
-    choice = choice[63:65]
+    choice = choice[103:105]
     return choice
 
 # get score
 def get_score(choice):
-    choice = choice[68:71]
+    choice = choice[108:110]
     return choice
 
 # watch animes
@@ -235,7 +239,7 @@ def update_title(title, episode):
     if custom != "":
         subprocess.call('trackma -a ' + account + ' update "' + title + '" ' + custom)
         subprocess.call('trackma -a' + account + ' send')
-        retrieve_list_update(account)
+        retrieve_list_update()
     else:
         color_print("Skipping updating...")
 
@@ -246,7 +250,7 @@ def update_score(title, score):
     if custom != "":
         subprocess.call('trackma -a ' + account + ' score "' + title + '" ' + custom)
         subprocess.call('trackma -a' + account + ' send')
-        retrieve_list_update(account)
+        retrieve_list_update()
     else:
         color_print("Skipping updating...")
 
