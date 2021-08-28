@@ -1,5 +1,4 @@
 import os, subprocess, sys, argparse, signal
-from time import sleep
 
 # argument parser
 ap = argparse.ArgumentParser()
