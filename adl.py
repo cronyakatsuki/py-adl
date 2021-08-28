@@ -18,8 +18,6 @@ ap.add_argument("-d", "--download", required=False, type=bool, nargs='?', const=
                 help="Download instead of streaming")
 ap.add_argument("-v", "--version", required=False, nargs='?', const=True,
                 help="Display version and exit")
-ap.add_argument("-r", "--retrieve", required=False, nargs='?', const=True,
-                help="Don't retrieve trackma list on startup")
 
 args = vars(ap.parse_args())
 
@@ -72,12 +70,6 @@ if args["version"]:
     print("Py-adl version 0.2")
     sys.exit()
 
-# don't retrieve on startup
-if args["retrieve"]:
-    retrieve = False
-else:
-    retrieve = True # retrieve new list
-
 # required files
 dn = os.path.dirname(os.path.realpath(__file__)) # get current directory of the script
 good_title = open(dn + "/good_title.txt").readlines() # the list of good titles
@@ -85,6 +77,7 @@ problematic_titles = open(dn + "/problem_title.txt").readlines() # list of probl
 fzf_file = open(dn + "/fzf.txt", "w+") # temp file for fzf
 fzf_file_path = dn +"/fzf.txt" # path of the temp file
 print_fzf_path = "python " + dn + "/print_fzf.py" # print the fzf file
+retrieve = True
 
 # setup env variables for better readability of outputs
 os.environ['LINES'] = '25'
