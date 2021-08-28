@@ -10,6 +10,8 @@ ap.add_argument("-i", "--provider", required=False,
                 help="Define provider used for streaming (check \033[0;36m$anime dl --help\033[0m for providers list)")
 ap.add_argument("-s", "--show", required=False,
                 help='Watch custom show. Ep nr optional, careful with the quotes. Ex: \033[0;36m$adl -s "gegege 2018"\033[0m')
+ap.add_argument("-n", "--number", required=False,
+                help='Specify episode number that will be used with "-s / --show" option. Ex: \033[0;36m$adl -s "gegege 2018" -n "4"\033[0m')
 ap.add_argument("-a", "--account", required=False,
                 help="By default trackma will use account 1. Use '-a 2' for example to change trackma account")
 ap.add_argument("-d", "--download", required=False, type=bool, nargs='?', const=True, default=False,
@@ -40,6 +42,16 @@ if args['show']:
     show = str(args["show"])
 else:
     show = ""
+
+# get episode
+if args['number']:
+    if args['number'] and args['show']:
+        episode = int(args['number'])
+    else:
+        print("You need to also specify a show name to use this option")
+        sys.exit()
+else:
+    episode = 0
 
 # get account
 if args['account']:
@@ -315,8 +327,10 @@ def choose_episode_specific_show():
     color_print("   C - Custom episode")
     color_print("   S - Skip. Exit adl.")
     return color_prommpt("Your choice? [A/i/c/s]: ")
-    
-if not show == "":
+
+if not show == "" and not episode == 0:
+     watch(show, str(episode))
+elif not show == "":
     while True:
         # choose what to do with the choosen anime
         action = choose_episode_specific_show()
@@ -438,3 +452,5 @@ else:
                     break
         else:
             exit_ask()
+
+exit_adl()
