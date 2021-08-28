@@ -67,7 +67,7 @@ else:
 
 # print the version
 if args["version"]:
-    print("Py-adl version 0.2")
+    print("Py-adl version 1")
     sys.exit()
 
 # required files
