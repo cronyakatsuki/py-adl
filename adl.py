@@ -17,8 +17,6 @@ def exit_adl():
 def interupt_command(signum, frame):
     exit_adl()
 
-
-
 # colored print
 def color_print(text):
     print("\033[0;36m" + text + " \033[0m")
@@ -241,13 +239,7 @@ def choose_episode_specific_show():
     color_print("   S - Skip. Exit adl.")
     return color_prommpt("Your choice? [A/i/c/s]: ")
 
-def main():
-    signal.signal(signal.SIGINT, interupt_command)
-
-    # setup env variables for better readability of outputs
-    os.environ['LINES'] = '25'
-    os.environ['COLUMNS'] = '120'
-
+def argument_parser():
     # argument parser
     ap = argparse.ArgumentParser()
 
@@ -269,7 +261,7 @@ def main():
     args = vars(ap.parse_args())
 
     # print(args)
-
+    
     # get player
     if args["player"]:
         player = str(args["player"]) # get player from user
@@ -316,6 +308,17 @@ def main():
     if args["version"]:
         print("Py-adl version 1.1")
         sys.exit()
+
+    return (player, provider, show, episode, account, download, msg)
+
+def main():
+    signal.signal(signal.SIGINT, interupt_command)
+
+    # setup env variables for better readability of outputs
+    os.environ['LINES'] = '25'
+    os.environ['COLUMNS'] = '120'
+
+    (player, provider, show, episode, account, download, msg) = argument_parser()
 
     retrieve = True
 
