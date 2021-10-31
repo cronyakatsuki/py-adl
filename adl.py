@@ -311,141 +311,153 @@ def argument_parser():
 
     return (player, provider, show, episode, account, download, msg)
 
+def specific_show_loop(show, msg, download, provider, player):
+    while True:
+        # choose what to do with the choosen anime
+        action = choose_episode_specific_show()
+        if action == "a" or action == "A" or action == "":
+            all_episodes(show, msg, download, provider, player)
+            exit_adl()
+        # custom range of episodes
+        elif action == "i" or action == "I":
+            custom_episode_range(show, msg, download, provider, player)
+            if wanna_continu_watch(download):
+                continue
+            else:
+                exit_adl()
+        # watch custom episode
+        elif action == "c" or action == "C":
+            custom_episode(show, msg, download, provider, player)
+            if wanna_continu_watch(download):
+                continue
+            else:
+                exit_adl()
+        # skip the anime
+        elif action == "s" or action == "S":
+            exit_adl()
+
+def main_loop(retrieve, account, msg, download,provider,player):
+    # main loop
+    while True:
+        # retrieving the list on start
+        if retrieve:
+            retrieve_list(account)
+            retrieve = False
+        
+        # get the list of anime
+        alist = load_list(account)
+        
+        # write list to file
+        list2file(alist, FZF_FILE)
+        
+        # reload file (I Guess ??)
+        FZF_FILE.seek(0)
+        
+        # get choice from fzf
+        choice = subprocess.getoutput(PRINT_FZF_PATH + ' | fzf --ansi --reverse --prompt "Choose anime to watch: "')
+        
+        if choice:
+            # get the title
+            title = get_title(choice)
+            # get current episode
+            episode = get_episode(choice)
+            # get current score
+            score = get_score(choice)
+            
+            # the watch loop
+            while True:
+                # choose what to do with the choosen anime
+                action = choose_episode()
+                # watch next episode
+                if action == "n" or action == "N" or action == "":
+                    next_episode(title, episode, msg, download,provider,player)
+                    wanna_update_title_after_watch(title, episode, score, download, account)
+                    exit_ask()
+                    break
+                # watch all left episodes
+                elif action == "l" or action == "L":
+                    all_from_last(title, episode, msg, download,provider,player)
+                    wanna_update_title_after_watch(title, episode, score, download, account)
+                    exit_ask()
+                    break
+                # watch every episode available
+                elif action == "a" or action == "A":
+                    all_episodes(title, msg, download,provider,player)
+                    wanna_update_title_after_watch(title, episode, score, download, account)
+                    exit_ask()
+                    break
+                # custom range of episodes
+                elif action == "i" or action == "I":
+                    custom_episode_range(title, msg, download,provider,player)
+                    if wanna_continu_watch(download):
+                        continue
+                    else:
+                        wanna_update_title_after_watch(title, episode, score, download, account)
+                        exit_ask()
+                        break
+                # something?
+                elif action == "1" or action == "2" or action == "3" or action == "4" or action == "5" or action == "6" or action == "7" or action == "8" or action == "9":
+                    next_plus_n(title, episode, action, msg, download,provider,player)
+                    if wanna_continu_watch(download):
+                        continue
+                    else:
+                        wanna_update_title_after_watch(title, episode, score, download, account)
+                        exit_ask()
+                        break
+                # rewatch current episode
+                elif action == "r" or action == "R":
+                    rewatch_episode(title, episode, msg, download,provider,player)
+                    if wanna_continu_watch(download):
+                        continue
+                    else:
+                        wanna_update_title_after_watch(title, episode, score, download, account)
+                        exit_ask()
+                        break
+                # watch custom episode
+                elif action == "c" or action == "C":
+                    custom_episode(title, msg, download,provider,player)
+                    if wanna_continu_watch(download):
+                        continue
+                    else:
+                        wanna_update_title_after_watch(title, episode, score, download, account)
+                        exit_ask()
+                        break
+                # update anime meta
+                elif action == "u" or action == "U":
+                    update_question(title, episode, score, account)
+                    exit_ask()
+                    break
+                # skip the anime
+                elif action == "s" or action == "S":
+                    break
+        else:
+            exit_ask()
+
+
 def main():
     signal.signal(signal.SIGINT, interupt_command)
 
     # setup env variables for better readability of outputs
     os.environ['LINES'] = '25'
     os.environ['COLUMNS'] = '120'
-
+    
+    # get argument parametes
     (player, provider, show, episode, account, download, msg) = argument_parser()
 
+    # retrieve the trackma list on run
     retrieve = True
-
+    
     if not show == "" and not episode == 0:
+        # watching just a specific show and episode only
          watch(show, str(episode), download, provider, player)
     elif not show == "":
-        while True:
-            # choose what to do with the choosen anime
-            action = choose_episode_specific_show()
-            if action == "a" or action == "A" or action == "":
-                all_episodes(show, msg, download, provider, player)
-                exit_adl()
-            # custom range of episodes
-            elif action == "i" or action == "I":
-                custom_episode_range(show, msg, download, provider, player)
-                if wanna_continu_watch(download):
-                    continue
-                else:
-                    exit_adl()
-            # watch custom episode
-            elif action == "c" or action == "C":
-                custom_episode(show, msg, download, provider, player)
-                if wanna_continu_watch(download):
-                    continue
-                else:
-                    exit_adl()
-            # skip the anime
-            elif action == "s" or action == "S":
-                exit_adl()
+        # choose want to do with a specific show
+        specific_show_loop(show, msg, download, provider, player)
     else:
-        # main loop
-        while True:
-            # retrieving the list on start
-            if retrieve:
-                retrieve_list(account)
-                retrieve = False
-            
-            # get the list of anime
-            alist = load_list(account)
-            
-            # write list to file
-            list2file(alist, FZF_FILE)
-            
-            # reload file (I Guess ??)
-            FZF_FILE.seek(0)
-            
-            # get choice from fzf
-            choice = subprocess.getoutput(PRINT_FZF_PATH + ' | fzf --ansi --reverse --prompt "Choose anime to watch: "')
-            
-            if choice:
-                # get the title
-                title = get_title(choice)
-                # get current episode
-                episode = get_episode(choice)
-                # get current score
-                score = get_score(choice)
-                
-                # the watch loop
-                while True:
-                    # choose what to do with the choosen anime
-                    action = choose_episode()
-                    # watch next episode
-                    if action == "n" or action == "N" or action == "":
-                        next_episode(title, episode, msg, download,provider,player)
-                        wanna_update_title_after_watch(title, episode, score, download, account)
-                        exit_ask()
-                        break
-                    # watch all left episodes
-                    elif action == "l" or action == "L":
-                        all_from_last(title, episode, msg, download,provider,player)
-                        wanna_update_title_after_watch(title, episode, score, download, account)
-                        exit_ask()
-                        break
-                    # watch every episode available
-                    elif action == "a" or action == "A":
-                        all_episodes(title, msg, download,provider,player)
-                        wanna_update_title_after_watch(title, episode, score, download, account)
-                        exit_ask()
-                        break
-                    # custom range of episodes
-                    elif action == "i" or action == "I":
-                        custom_episode_range(title, msg, download,provider,player)
-                        if wanna_continu_watch(download):
-                            continue
-                        else:
-                            wanna_update_title_after_watch(title, episode, score, download, account)
-                            exit_ask()
-                            break
-                    # something?
-                    elif action == "1" or action == "2" or action == "3" or action == "4" or action == "5" or action == "6" or action == "7" or action == "8" or action == "9":
-                        next_plus_n(title, episode, action, msg, download,provider,player)
-                        if wanna_continu_watch(download):
-                            continue
-                        else:
-                            wanna_update_title_after_watch(title, episode, score, download, account)
-                            exit_ask()
-                            break
-                    # rewatch current episode
-                    elif action == "r" or action == "R":
-                        rewatch_episode(title, episode, msg, download,provider,player)
-                        if wanna_continu_watch(download):
-                            continue
-                        else:
-                            wanna_update_title_after_watch(title, episode, score, download, account)
-                            exit_ask()
-                            break
-                    # watch custom episode
-                    elif action == "c" or action == "C":
-                        custom_episode(title, msg, download,provider,player)
-                        if wanna_continu_watch(download):
-                            continue
-                        else:
-                            wanna_update_title_after_watch(title, episode, score, download, account)
-                            exit_ask()
-                            break
-                    # update anime meta
-                    elif action == "u" or action == "U":
-                        update_question(title, episode, score, account)
-                        exit_ask()
-                        break
-                    # skip the anime
-                    elif action == "s" or action == "S":
-                        break
-            else:
-                exit_ask()
-
+        # main loop that connets with your list with trackma
+        main_loop(retrieve, account, msg, download,provider,player)
     exit_adl()
 
+# run only if runned directly
 if __name__ == "__main__" :
     main()
