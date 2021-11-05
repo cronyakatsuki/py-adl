@@ -255,13 +255,25 @@ def argument_parser():
                     help="By default trackma will use account 1. Use '-a 2' for example to change trackma account")
     ap.add_argument("-d", "--download", required=False, type=bool, nargs='?', const=True, default=False,
                     help="Download instead of streaming")
+    ap.add_argument("-t", "--test-providers", required=False, type=bool, nargs='?', const=True, default=False,
+                    help="Check the state of possible providers")
     ap.add_argument("-v", "--version", required=False, nargs='?', const=True,
                     help="Display version and exit")
 
     args = vars(ap.parse_args())
 
-    # print(args)
+    print(args)
     
+    # print the version
+    if args["version"]:
+        print("Py-adl version 1.1")
+        sys.exit()
+
+    # check if providers are working
+    if args["test_providers"]:
+        subprocess.run("anime test")
+        sys.exit()
+
     # get player
     if args["player"]:
         player = str(args["player"]) # get player from user
@@ -304,10 +316,6 @@ def argument_parser():
         download = False # specify whether to download or not
         msg = "watching" # msg for the watch prompt
 
-    # print the version
-    if args["version"]:
-        print("Py-adl version 1.1")
-        sys.exit()
 
     return (player, provider, show, episode, account, download, msg)
 
