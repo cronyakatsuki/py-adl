@@ -257,6 +257,8 @@ def argument_parser():
                     help="Download instead of streaming")
     ap.add_argument("-t", "--test-providers", required=False, type=bool, nargs='?', const=True, default=False,
                     help="Check the state of possible providers")
+    ap.add_argument("-c", "--check-show", required=False,
+                    help="Check what provider has that one anime you wan't to watch. Ex: \033[0;36m$adl -c 'gegege 2018' -n \033[0m")
     ap.add_argument("-v", "--version", required=False, nargs='?', const=True,
                     help="Display version and exit")
 
@@ -272,6 +274,11 @@ def argument_parser():
     # check if providers are working
     if args["test_providers"]:
         subprocess.run("anime test")
+        sys.exit()
+
+    # check if anime exists in any of the providers
+    if args["check_show"]:
+        subprocess.run("anime test '" + str(args["check_show"]) + "'")
         sys.exit()
 
     # get player
