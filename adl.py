@@ -7,6 +7,7 @@ PROBLEMATIC_TITLES = open(DN + "/problem_title.txt").readlines() # list of probl
 FZF_FILE = open(DN + "/fzf.txt", "w+") # temp file for fzf
 FZF_FILE_PATH = DN +"/fzf.txt" # path of the temp file
 PRINT_FZF_PATH = "python " + DN + "/print_fzf.py" # print the fzf file
+CONFIG_FILE_PATH = os.path.join('C\\', 'Users', str(os.getlogin()), 'Documents', 'Adl', 'config.json')
 
 # exit function
 def exit_adl():
