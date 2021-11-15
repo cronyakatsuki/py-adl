@@ -20,31 +20,31 @@ def interupt_command(signum, frame):
 
 # colored print
 def color_print(text):
-    print("\033[0;36m" + text + " \033[0m")
+    print(f"\033[0;36m{text } \033[0m")
 
 # colored watch primpt
 def watch_prompt(title, episode, msg):
-    print("Now " + msg + " \033[0;34m" + title + "\033[0m, episode \033[0;34m" + str(episode) + " \033[0m")
+    print(f"Now{msg} \033[0;34m{title}\033[0m, episode \033[0;34m{str(episode)} \033[0m")
 
 # colored input
 def color_prommpt(text):
-    return input("\033[0;34m" + text + "\033[0m")
+    return input(f"\033[0;34m{text}\033[0m")
 
 # retrieve new list
 def retrieve_list(account):
-    color_print ("Running trackma retrieve for account " + account + "...")
-    subprocess.call("trackma -a " + account + " retrieve")
+    color_print (f"Running trackma retrieve for account {account}...")
+    subprocess.call(f"trackma -a {account} retrieve")
     subprocess.call("cls", shell=True)
     
 # retrieve updated list
 def retrieve_list_update(account):
-    color_print("Running trackma retrieve for account " + account + " to get the updated list...")
-    subprocess.call("trackma -a " + account + " retrieve")
+    color_print(f"Running trackma retrieve for account {account} to get the updated list...")
+    subprocess.call(f"trackma -a {account} retrieve")
     subprocess.call("cls", shell=True)
 
 # load list
 def load_list(account):
-    alist = subprocess.getoutput("trackma -a " + account + " list").splitlines()
+    alist = subprocess.getoutput(f"trackma -a {account} list").splitlines()
     alist.pop(0)
     alist.pop()
     return alist
@@ -92,13 +92,13 @@ def get_score(choice):
 
 # watch animes
 def watch(title, episode, download, provider, player):
-    cmd = 'anime dl "' + title + '" --episodes ' + episode
+    cmd = f'anime dl "{title}" --episodes {episode}'
     
     if not download:
-        cmd += ' --play ' + player
+        cmd += f' --play {player}'
     
     if not provider == "":
-        cmd += ' --provider ' + provider
+        cmd += f' --provider {provider}'
     
     subprocess.run(cmd)
 
@@ -111,7 +111,7 @@ def next_episode(title,episode, msg, download, provider, player):
             watch_prompt(title, str(episode), msg)
             watch(title, str(episode), download, provider, player)
             while True:
-                color_print("Current watched episode: " + str(episode))
+                color_print(f"Current watched episode: {str(episode)}")
                 yn = color_prommpt("Wanna watch next episode? [Y/n]: ")
                 if yn == "Y" or yn == "y" or yn == "":
                     break
@@ -125,8 +125,8 @@ def next_episode(title,episode, msg, download, provider, player):
 
 # all from last watched
 def all_from_last(title,episode, msg, download, provider, player):
-    watch_prompt(title, str(episode) + " all left episodes", msg)
-    watch(title, str(episode + 1) + ':', download, provider, player)
+    watch_prompt(title, f"{str(episode)} all left episodes", msg)
+    watch(title, f'{str(episode + 1)}:', download, provider, player)
 
 # all episode
 def all_episodes(title, msg, download, provider, player):
@@ -137,8 +137,8 @@ def all_episodes(title, msg, download, provider, player):
 def custom_episode_range(title, msg, download, provider, player):
     begginig = color_prommpt("Beggining of interval?: ")
     end = color_prommpt("End of interval?: ")
-    watch_prompt(title, begginig + " to " + end, msg)
-    watch(title, begginig + ':' + end, download, provider, player)
+    watch_prompt(title, f"{begginig} to {end}", msg)
+    watch(title, f"{begginig}:{end}", download, provider, player)
 
 # add to last watched m
 def next_plus_n(title, episode, action, msg, download, provider, player):
@@ -158,22 +158,22 @@ def custom_episode(title, msg, download,provider, player):
     
 # update title
 def update_title(title, episode, account):
-    color_print("Current episode for " + title + " is " + str(episode))
+    color_print(f"Current episode for {title} is {str(episode)}")
     custom = color_prommpt("Enter updated episode number: ")
     if custom != "":
-        subprocess.call('trackma -a ' + account + ' update "' + title + '" ' + custom)
-        subprocess.call('trackma -a' + account + ' send')
+        subprocess.call(f'trackma -a {account} update "{title}" {custom}')
+        subprocess.call(f'trackma -a {account} send')
         retrieve_list_update(account)
     else:
         color_print("Skipping updating...")
 
 # update score
 def update_score(title, score, account):
-    color_print("Current score for " + title + " is " + score)
+    color_print(f"Current score for {title} is {score}")
     custom = color_prommpt("Enter updated score: ")
     if custom != "":
-        subprocess.call('trackma -a ' + account + ' score "' + title + '" ' + custom)
-        subprocess.call('trackma -a' + account + ' send')
+        subprocess.call(f'trackma -a {account} score "{title}" {custom}')
+        subprocess.call(f'trackma -a {account} send')
         retrieve_list_update(account)
     else:
         color_print("Skipping updating...")
@@ -279,7 +279,7 @@ def argument_parser():
 
     # check if anime exists in any of the providers
     if args["check_show"]:
-        subprocess.run("anime test '" + str(args["check_show"]) + "'")
+        subprocess.run(f"anime test '{str(args['check_show'])}'")
         sys.exit()
 
     # get player
@@ -370,7 +370,7 @@ def main_loop(retrieve, account, msg, download,provider,player):
         FZF_FILE.seek(0)
         
         # get choice from fzf
-        choice = subprocess.getoutput(PRINT_FZF_PATH + ' | fzf --ansi --reverse --prompt "Choose anime to watch: "')
+        choice = subprocess.getoutput(f'{PRINT_FZF_PATH} | fzf --ansi --reverse --prompt "Choose anime to watch: "')
         
         if choice:
             # get the title
