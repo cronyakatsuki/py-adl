@@ -7,7 +7,7 @@ PROBLEMATIC_TITLES = open(DN + "/problem_title.txt").readlines() # list of probl
 FZF_FILE = open(DN + "/fzf.txt", "w+") # temp file for fzf
 FZF_FILE_PATH = DN +"/fzf.txt" # path of the temp file
 PRINT_FZF_PATH = "python " + DN + "/print_fzf.py" # print the fzf file
-CONFIG_FILE_PATH = os.path.join('C\\', 'Users', str(os.getlogin()), 'Documents', 'Adl', 'config.json')
+CONFIG_FILE_PATH = os.path.join('C:\\', 'Users', str(os.getlogin()), 'Documents', 'Adl', 'config.json')
 
 # exit function
 def exit_adl():
@@ -240,7 +240,15 @@ def choose_episode_specific_show():
     color_print("   S - Skip. Exit adl.")
     return color_prommpt("Your choice? [A/i/c/s]: ")
 
-def argument_parser():
+def argument_and_config_parser():
+    # config
+    config = {}
+    ConfigExists = False
+    if os.path.exists(CONFIG_FILE_PATH):
+        config_content = open(CONFIG_FILE_PATH, encoding='utf-8-sig').read()
+        config = eval(config_content)
+        ConfigExists = True
+
     # argument parser
     ap = argparse.ArgumentParser()
 
@@ -264,8 +272,6 @@ def argument_parser():
                     help="Display version and exit")
 
     args = vars(ap.parse_args())
-
-    print(args)
     
     # print the version
     if args["version"]:
@@ -285,12 +291,16 @@ def argument_parser():
     # get player
     if args["player"]:
         player = str(args["player"]) # get player from user
+    elif ConfigExists and 'player' in config and config["player"]:
+            player = str(config["player"]) # get player from config
     else:
         player = "mpv" # default player
 
     # get provider
     if args['provider']:
         provider = str(args["provider"])
+    elif ConfigExists and 'provider' in config and config['provider']:
+        provider = str(config["provider"])
     else:
         provider = ""
 
@@ -313,6 +323,8 @@ def argument_parser():
     # get account
     if args['account']:
         account = str(int(args["account"]) - 1) # take the account from input
+    elif ConfigExists and 'account' in config and config["account"]:
+        account = str(int(config["account"]) - 1) # take the account from config
     else:
         account = "0" # default account
         
@@ -323,7 +335,6 @@ def argument_parser():
     else:
         download = False # specify whether to download or not
         msg = "watching" # msg for the watch prompt
-
 
     return (player, provider, show, episode, account, download, msg)
 
@@ -457,8 +468,8 @@ def main():
     os.environ['LINES'] = '25'
     os.environ['COLUMNS'] = '120'
     
-    # get argument parametes
-    (player, provider, show, episode, account, download, msg) = argument_parser()
+    # get argument and config parameters
+    (player, provider, show, episode, account, download, msg) = argument_and_config_parser()
 
     # retrieve the trackma list on run
     retrieve = True
