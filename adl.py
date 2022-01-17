@@ -24,7 +24,7 @@ def color_print(text):
 
 # colored watch primpt
 def watch_prompt(title, episode, msg):
-    print(f"Now{msg} \033[0;34m{title}\033[0m, episode \033[0;34m{str(episode)} \033[0m")
+    print(f"Now {msg} \033[0;34m{title}\033[0m, episode \033[0;34m{str(episode)} \033[0m")
 
 # colored input
 def color_prommpt(text):
