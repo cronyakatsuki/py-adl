@@ -8,6 +8,8 @@ FZF_FILE = open(DN + "/fzf.txt", "w+") # temp file for fzf
 FZF_FILE_PATH = DN +"/fzf.txt" # path of the temp file
 PRINT_FZF_PATH = "python " + DN + "/print_fzf.py" # print the fzf file
 CONFIG_FILE_PATH = os.path.join('C:\\', 'Users', str(os.getlogin()), 'Documents', 'Adl', 'config.json')
+DEFAULT_DOWNLOAD_LOCATION = os.path.join('C:\\', 'Users', str(os.getlogin()), 'Videos', 'Anime')
+CURRENT_DIR = os.getcwd()
 
 # exit function
 def exit_adl():
@@ -91,25 +93,34 @@ def get_score(choice):
     return choice
 
 # watch animes
-def watch(title, episode, download, provider, player):
-    cmd = f'anime dl "{title}" --episodes {episode}'
+def watch(title, episode, download, provider, download_location):
+    cmd = f'animdl'
     
-    if not download:
-        cmd += f' --play {player}'
+    if download:
+        cmd += f' download '
+        if os.path.isdir(download_location):
+            os.chdir(download_location)
+        else:
+            os.mkdir(download_location)
+            os.chdir(download_location)
+    else:
+        cmd += f' stream '
     
-    if not provider == "":
-        cmd += f' --provider {provider}'
-    
+    cmd += f'"{provider}:{title}" -r {episode}'
+
     subprocess.run(cmd)
 
+    if download:
+        os.chdir(CURRENT_DIR)
+
 # next episode
-def next_episode(title,episode, msg, download, provider, player):
+def next_episode(title,episode, msg, download, provider, download_location):
     if not download:
         watch_next = True
         while watch_next:
             episode = episode + 1
             watch_prompt(title, str(episode), msg)
-            watch(title, str(episode), download, provider, player)
+            watch(title, str(episode), download, provider, download_location)
             while True:
                 color_print(f"Current watched episode: {str(episode)}")
                 yn = color_prommpt("Wanna watch next episode? [Y/n]: ")
@@ -121,40 +132,40 @@ def next_episode(title,episode, msg, download, provider, player):
     else:
         episode = episode + 1
         watch_prompt(title, str(episode), msg)
-        watch(title, str(episode), download, provider, player)
+        watch(title, str(episode), download, provider, download_location)
 
 # all from last watched
-def all_from_last(title,episode, msg, download, provider, player):
+def all_from_last(title,episode, msg, download, provider, download_location):
     watch_prompt(title, f"{str(episode)} all left episodes", msg)
-    watch(title, f'{str(episode + 1)}:', download, provider, player)
+    watch(title, f'{str(episode + 1)}:', download, provider, download_location)
 
 # all episode
-def all_episodes(title, msg, download, provider, player):
+def all_episodes(title, msg, download, provider, download_location):
     watch_prompt(title, "all", msg)
-    watch(title, '1:', download, provider, player)
+    watch(title, '1:', download, provider, download_location)
 
 # watch from custom range
-def custom_episode_range(title, msg, download, provider, player):
+def custom_episode_range(title, msg, download, provider, download_location):
     begginig = color_prommpt("Beggining of interval?: ")
     end = color_prommpt("End of interval?: ")
     watch_prompt(title, f"{begginig} to {end}", msg)
-    watch(title, f"{begginig}:{end}", download, provider, player)
+    watch(title, f"{begginig}:{end}", download, provider, download_location)
 
 # add to last watched m
-def next_plus_n(title, episode, action, msg, download, provider, player):
+def next_plus_n(title, episode, action, msg, download, provider, download_location):
     watch_prompt(title, str(episode + int(action)), msg)
-    watch(title, str(episode + int(action)), download, provider, player)
+    watch(title, str(episode + int(action)), download, provider, download_location)
 
 # rewatch current episode
-def rewatch_episode(title, episode, msg, download, provider, player):
+def rewatch_episode(title, episode, msg, download, provider, download_location):
     watch_prompt(title, str(episode), msg)
-    watch(title, str(episode), download, provider, player)
+    watch(title, str(episode), download, provider, download_location)
 
 # watch custom episode
-def custom_episode(title, msg, download,provider, player):
+def custom_episode(title, msg, download,provider, download_location):
     episode = color_prommpt("Enter custom episode: ")
     watch_prompt(title, episode, msg)
-    watch(title, episode, download, provider, player)
+    watch(title, episode, download, provider, download_location)
     
 # update title
 def update_title(title, episode, account):
@@ -252,9 +263,7 @@ def argument_and_config_parser():
     # argument parser
     ap = argparse.ArgumentParser()
 
-    ap.add_argument("-p", "--player", required=False,
-                    help="Define player used for streaming. Ex: \033[0;36mpyadl -p mpv\033[0m")
-    ap.add_argument("-i", "--provider", required=False,
+    ap.add_argument("-p", "--provider", required=False,
                     help="Define provider used for streaming (check \033[0;36m$anime dl --help\033[0m for providers list)")
     ap.add_argument("-s", "--show", required=False,
                     help='Watch custom show. Ep nr optional, careful with the quotes. Ex: \033[0;36m$adl -s "gegege 2018"\033[0m')
@@ -264,6 +273,8 @@ def argument_and_config_parser():
                     help="By default trackma will use account 1. Use '-a 2' for example to change trackma account")
     ap.add_argument("-d", "--download", required=False, type=bool, nargs='?', const=True, default=False,
                     help="Download instead of streaming")
+    ap.add_argument("-l", "--download-location", required=False,
+                    help="Define downloads location, Default location is in 'User folder/Videos/Anime'")
     ap.add_argument("-t", "--test-providers", required=False, type=bool, nargs='?', const=True, default=False,
                     help="Check the state of possible providers")
     ap.add_argument("-c", "--check-show", required=False,
@@ -288,21 +299,13 @@ def argument_and_config_parser():
         subprocess.run(f"anime test '{str(args['check_show'])}'")
         sys.exit()
 
-    # get player
-    if args["player"]:
-        player = str(args["player"]) # get player from user
-    elif ConfigExists and 'player' in config and config["player"]:
-            player = str(config["player"]) # get player from config
-    else:
-        player = "mpv" # default player
-
     # get provider
     if args['provider']:
         provider = str(args["provider"])
     elif ConfigExists and 'provider' in config and config['provider']:
         provider = str(config["provider"])
     else:
-        provider = ""
+        provider = "zoro"
 
     # get show
     if args['show']:
@@ -336,25 +339,35 @@ def argument_and_config_parser():
         download = False # specify whether to download or not
         msg = "watching" # msg for the watch prompt
 
-    return (player, provider, show, episode, account, download, msg)
 
-def specific_show_loop(show, msg, download, provider, player):
+    if not download and args["download_location"]:
+        color_print("You need to be downloading to use this option!")
+        exit_adl()
+    elif download and args["download_location"]:
+        download_location = str(args["download_location"])
+    else:
+        download_location = DEFAULT_DOWNLOAD_LOCATION
+
+
+    return (provider, show, episode, account, download, msg, download_location)
+
+def specific_show_loop(show, msg, download, provider, download_location):
     while True:
         # choose what to do with the choosen anime
         action = choose_episode_specific_show()
         if action == "a" or action == "A" or action == "":
-            all_episodes(show, msg, download, provider, player)
+            all_episodes(show, msg, download, provider, download_location)
             exit_adl()
         # custom range of episodes
         elif action == "i" or action == "I":
-            custom_episode_range(show, msg, download, provider, player)
+            custom_episode_range(show, msg, download, provider, download_location)
             if wanna_continu_watch(download):
                 continue
             else:
                 exit_adl()
         # watch custom episode
         elif action == "c" or action == "C":
-            custom_episode(show, msg, download, provider, player)
+            custom_episode(show, msg, download, provider, download_location)
             if wanna_continu_watch(download):
                 continue
             else:
@@ -363,7 +376,7 @@ def specific_show_loop(show, msg, download, provider, player):
         elif action == "s" or action == "S":
             exit_adl()
 
-def main_loop(retrieve, account, msg, download,provider,player):
+def main_loop(retrieve, account, msg, download,provider, download_location):
     # main loop
     while True:
         # retrieving the list on start
@@ -397,25 +410,25 @@ def main_loop(retrieve, account, msg, download,provider,player):
                 action = choose_episode()
                 # watch next episode
                 if action == "n" or action == "N" or action == "":
-                    next_episode(title, episode, msg, download,provider,player)
+                    next_episode(title, episode, msg, download,provider, download_location)
                     wanna_update_title_after_watch(title, episode, score, download, account)
                     exit_ask()
                     break
                 # watch all left episodes
                 elif action == "l" or action == "L":
-                    all_from_last(title, episode, msg, download,provider,player)
+                    all_from_last(title, episode, msg, download,provider, download_location)
                     wanna_update_title_after_watch(title, episode, score, download, account)
                     exit_ask()
                     break
                 # watch every episode available
                 elif action == "a" or action == "A":
-                    all_episodes(title, msg, download,provider,player)
+                    all_episodes(title, msg, download,provider, download_location)
                     wanna_update_title_after_watch(title, episode, score, download, account)
                     exit_ask()
                     break
                 # custom range of episodes
                 elif action == "i" or action == "I":
-                    custom_episode_range(title, msg, download,provider,player)
+                    custom_episode_range(title, msg, download,provider, download_location)
                     if wanna_continu_watch(download):
                         continue
                     else:
@@ -424,7 +437,7 @@ def main_loop(retrieve, account, msg, download,provider,player):
                         break
                 # something?
                 elif action == "1" or action == "2" or action == "3" or action == "4" or action == "5" or action == "6" or action == "7" or action == "8" or action == "9":
-                    next_plus_n(title, episode, action, msg, download,provider,player)
+                    next_plus_n(title, episode, action, msg, download,provider, download_location)
                     if wanna_continu_watch(download):
                         continue
                     else:
@@ -433,7 +446,7 @@ def main_loop(retrieve, account, msg, download,provider,player):
                         break
                 # rewatch current episode
                 elif action == "r" or action == "R":
-                    rewatch_episode(title, episode, msg, download,provider,player)
+                    rewatch_episode(title, episode, msg, download,provider, download_location)
                     if wanna_continu_watch(download):
                         continue
                     else:
@@ -442,7 +455,7 @@ def main_loop(retrieve, account, msg, download,provider,player):
                         break
                 # watch custom episode
                 elif action == "c" or action == "C":
-                    custom_episode(title, msg, download,provider,player)
+                    custom_episode(title, msg, download,provider, download_location)
                     if wanna_continu_watch(download):
                         continue
                     else:
@@ -469,20 +482,20 @@ def main():
     os.environ['COLUMNS'] = '120'
     
     # get argument and config parameters
-    (player, provider, show, episode, account, download, msg) = argument_and_config_parser()
+    (provider, show, episode, account, download, msg, download_location) = argument_and_config_parser()
 
     # retrieve the trackma list on run
     retrieve = True
     
     if not show == "" and not episode == 0:
         # watching just a specific show and episode only
-         watch(show, str(episode), download, provider, player)
+         watch(show, str(episode), download, provider, download_location)
     elif not show == "":
         # choose want to do with a specific show
-        specific_show_loop(show, msg, download, provider, player)
+        specific_show_loop(show, msg, download, provider, download_location)
     else:
         # main loop that connets with your list with trackma
-        main_loop(retrieve, account, msg, download,provider,player)
+        main_loop(retrieve, account, msg, download,provider, download_location)
     exit_adl()
 
 # run only if runned directly
