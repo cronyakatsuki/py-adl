@@ -77,22 +77,23 @@ def check_title(title):
             title = title.decode('utf-8')
     return title
 
-# get your title
-def get_title(choice):
-    choice = choice[9:-19]
-    choice = choice.rstrip(".")
-    title = check_title(choice)
-    return title
+# get chosen anime info
+def get_info(choice):
+    # get index
+    index = int(choice[4:7])
 
-# get episode
-def get_episode(choice):
-    choice = choice[-19:-15]
-    return int(choice)
+    # get title
+    title = choice[9:-19]
+    title = title.rstrip(".")
+    title = check_title(title)
 
-# get score
-def get_score(choice):
-    choice = choice[-10:-5]
-    return choice
+    # get episode
+    episode = int(choice[-19:-15])
+
+    # get score
+    score = int(choice[-10:-5])
+
+    return index, title, episode, score
 
 # watch animes
 def watch(title, episode, download, provider, download_location):
@@ -170,37 +171,37 @@ def custom_episode(title, msg, download,provider, download_location):
     watch(title, episode, download, provider, download_location)
     
 # update title
-def update_title(title, episode, account):
+def update_title(index, title, episode, account):
     color_print(f"Current episode for {title} is {str(episode)}")
     custom = color_prommpt("Enter updated episode number: ")
     if custom != "":
-        subprocess.call(f'trackma -a {account} update "{title}" {custom}')
+        subprocess.call(f'trackma -a {account} update "{index}" {custom}')
         subprocess.call(f'trackma -a {account} send')
         retrieve_list_update(account)
     else:
         color_print("Skipping updating...")
 
 # update score
-def update_score(title, score, account):
+def update_score(index, title, score, account):
     color_print(f"Current score for {title} is {score}")
     custom = color_prommpt("Enter updated score: ")
     if custom != "":
-        subprocess.call(f'trackma -a {account} score "{title}" {custom}')
+        subprocess.call(f'trackma -a {account} score "{index}" {custom}')
         subprocess.call(f'trackma -a {account} send')
         retrieve_list_update(account)
     else:
         color_print("Skipping updating...")
 
 # update question
-def update_question(title, episode, score, account):
+def update_question(index, title, episode, score, account):
     while True:
         color_print("Skipping watching episodes. Modifing entry.")
         choice = color_prommpt("Update episode number or update score [E/s]: ")
         if choice == "e" or choice == "E" or choice == "":
-            update_title(title, episode, account)
+            update_title(index, title, episode, account)
             break
         elif choice == "s" or choice == "S":
-            update_score(title, score, account)
+            update_score(index, title, score, account)
             break
 
 # ask if you wanna continus watching
@@ -216,15 +217,15 @@ def wanna_continu_watch(download):
             return False
 
 # ask if you wanna update title meta after watch
-def wanna_update_title_after_watch(title, episode, score, download, account):
+def wanna_update_title_after_watch(index, title, episode, score, download, account):
     if not download:
         while True:
             yn = color_prommpt("Wanna update episode number or update score of watched anime? [N/e/s]: ")
             if yn == "E" or yn == "e":
-                update_title(title, episode, account)
+                update_title(index, title, episode, account)
                 break
             elif yn == "S" or yn == "s":
-                update_score(title, score, account)
+                update_score(index, title, score, account)
                 break
             elif yn == "N" or yn == "n" or yn == "":
                 break
@@ -399,12 +400,8 @@ def main_loop(retrieve, account, msg, download,provider, download_location):
         choice = subprocess.getoutput(f'{PRINT_FZF_PATH} | fzf --ansi --unicode --reverse --prompt "Choose anime to watch: "')
         
         if choice:
-            # get the title
-            title = get_title(choice)
-            # get current episode
-            episode = get_episode(choice)
-            # get current score
-            score = get_score(choice)
+            # get needed info
+            index, title, episode, score = get_info(choice)
             
             # the watch loop
             while True:
@@ -413,19 +410,19 @@ def main_loop(retrieve, account, msg, download,provider, download_location):
                 # watch next episode
                 if action == "n" or action == "N" or action == "":
                     next_episode(title, episode, msg, download,provider, download_location)
-                    wanna_update_title_after_watch(title, episode, score, download, account)
+                    wanna_update_title_after_watch(index, title, episode, score, download, account)
                     exit_ask()
                     break
                 # watch all left episodes
                 elif action == "l" or action == "L":
                     all_from_last(title, episode, msg, download,provider, download_location)
-                    wanna_update_title_after_watch(title, episode, score, download, account)
+                    wanna_update_title_after_watch(index, title, episode, score, download, account)
                     exit_ask()
                     break
                 # watch every episode available
                 elif action == "a" or action == "A":
                     all_episodes(title, msg, download,provider, download_location)
-                    wanna_update_title_after_watch(title, episode, score, download, account)
+                    wanna_update_title_after_watch(index, title, episode, score, download, account)
                     exit_ask()
                     break
                 # custom range of episodes
@@ -434,7 +431,7 @@ def main_loop(retrieve, account, msg, download,provider, download_location):
                     if wanna_continu_watch(download):
                         continue
                     else:
-                        wanna_update_title_after_watch(title, episode, score, download, account)
+                        wanna_update_title_after_watch(index, title, episode, score, download, account)
                         exit_ask()
                         break
                 # something?
@@ -443,7 +440,7 @@ def main_loop(retrieve, account, msg, download,provider, download_location):
                     if wanna_continu_watch(download):
                         continue
                     else:
-                        wanna_update_title_after_watch(title, episode, score, download, account)
+                        wanna_update_title_after_watch(index, title, episode, score, download, account)
                         exit_ask()
                         break
                 # rewatch current episode
@@ -452,7 +449,7 @@ def main_loop(retrieve, account, msg, download,provider, download_location):
                     if wanna_continu_watch(download):
                         continue
                     else:
-                        wanna_update_title_after_watch(title, episode, score, download, account)
+                        wanna_update_title_after_watch(index, title, episode, score, download, account)
                         exit_ask()
                         break
                 # watch custom episode
@@ -461,12 +458,12 @@ def main_loop(retrieve, account, msg, download,provider, download_location):
                     if wanna_continu_watch(download):
                         continue
                     else:
-                        wanna_update_title_after_watch(title, episode, score, download, account)
+                        wanna_update_title_after_watch(index, title, episode, score, download, account)
                         exit_ask()
                         break
                 # update anime meta
                 elif action == "u" or action == "U":
-                    update_question(title, episode, score, account)
+                    update_question(index, title, episode, score, account)
                     exit_ask()
                     break
                 # skip the anime
