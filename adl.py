@@ -1,9 +1,10 @@
+from base64 import encode
 import os, subprocess, sys, argparse, signal
 
 # required files
 DN = os.path.dirname(os.path.realpath(__file__)) # get current directory of the script
-GOOD_TITLES = open(DN + "/good_title.txt").readlines() # the list of good titles
-PROBLEMATIC_TITLES = open(DN + "/problem_title.txt").readlines() # list of problematic titles
+GOOD_TITLES = open(DN + "/good_title.txt", encoding='utf-8').readlines() # the list of good titles
+PROBLEMATIC_TITLES = open(DN + "/problem_title.txt", encoding='utf-8').readlines() # list of problematic titles
 FZF_FILE = open(DN + "/fzf.txt", "w+") # temp file for fzf
 FZF_FILE_PATH = DN +"/fzf.txt" # path of the temp file
 PRINT_FZF_PATH = "python " + DN + "/print_fzf.py" # print the fzf file
@@ -71,25 +72,26 @@ def exit_ask():
 # check for problematic title
 def check_title(title):
     for problem in PROBLEMATIC_TITLES:
-        if problem.__contains__(title):
-            title = GOOD_TITLES[PROBLEMATIC_TITLES.index(problem)]
+        if problem == title:
+            title = GOOD_TITLES[PROBLEMATIC_TITLES.index(problem)].encode('utf-8')
+            title = title.decode('utf-8')
     return title
 
 # get your title
 def get_title(choice):
-    choice = choice[9:96]
+    choice = choice[9:-19]
     choice = choice.rstrip(".")
     title = check_title(choice)
     return title
 
 # get episode
 def get_episode(choice):
-    choice = choice[98:100]
+    choice = choice[-19:-15]
     return int(choice)
 
 # get score
 def get_score(choice):
-    choice = choice[108:110]
+    choice = choice[-10:-5]
     return choice
 
 # watch animes
@@ -394,7 +396,7 @@ def main_loop(retrieve, account, msg, download,provider, download_location):
         FZF_FILE.seek(0)
         
         # get choice from fzf
-        choice = subprocess.getoutput(f'{PRINT_FZF_PATH} | fzf --ansi --reverse --prompt "Choose anime to watch: "')
+        choice = subprocess.getoutput(f'{PRINT_FZF_PATH} | fzf --ansi --unicode --reverse --prompt "Choose anime to watch: "')
         
         if choice:
             # get the title
@@ -480,7 +482,7 @@ def main():
     # setup env variables for better readability of outputs
     os.environ['LINES'] = '25'
     os.environ['COLUMNS'] = '120'
-    
+    os.environ['PYTHONIOENCODING'] = 'utf-8'
     # get argument and config parameters
     (provider, show, episode, account, download, msg, download_location) = argument_and_config_parser()
 
