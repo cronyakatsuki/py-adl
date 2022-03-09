@@ -1,23 +1,29 @@
-from base64 import encode
+#! /usr/bin/env python3
+
 import os, subprocess, sys, argparse, signal
 
 # required files
-DN = os.path.dirname(os.path.realpath(__file__)) # get current directory of the script
-GOOD_TITLES = open(DN + "/good_title.txt", encoding='utf-8').readlines() # the list of good titles
-PROBLEMATIC_TITLES = open(DN + "/problem_title.txt", encoding='utf-8').readlines() # list of problematic titles
-FZF_FILE = open(DN + "/fzf.txt", "w+") # temp file for fzf
-FZF_FILE_PATH = DN +"/fzf.txt" # path of the temp file
-PRINT_FZF_PATH = "python " + DN + "/print_fzf.py" # print the fzf file
-CONFIG_FILE_PATH = os.path.join('C:\\', 'Users', str(os.getlogin()), 'Documents', 'Adl', 'config.json')
-DEFAULT_DOWNLOAD_LOCATION = os.path.join('C:\\', 'Users', str(os.getlogin()), 'Videos', 'Anime')
 CURRENT_DIR = os.getcwd()
 
+if sys.platform == "win32":
+    CONFIG_FILE_PATH = os.path.join('C:\\', 'Users', str(os.getlogin()), 'Documents', 'Adl', 'config.json')
+    DEFAULT_DOWNLOAD_LOCATION = os.path.join('C:\\', 'Users', str(os.getlogin()), 'Videos', 'Anime')
+    CLEAR = 'cls'
+else:
+    CONFIG_FILE_PATH = os.path.join('home', str(os.getlogin()), '.config', 'adl', 'config.json')
+    DEFAULT_DOWNLOAD_LOCATION = os.path.join('home', str(os.getlogin()), 'Videos', 'Anime')
+    CLEAR = 'clear'
+
+PROBLEMATIC_TITLES = ['Komi-san wa, Komyushou desu ',
+                'SKâˆž']
+GOOD_TITLES = ['Komi-san wa, Komyushou desu.',
+                'SK∞']
+                
 # exit function
 def exit_adl():
-    FZF_FILE.close()
-    os.remove(FZF_FILE_PATH)
     sys.exit()
 
+# 
 def interupt_command(signum, frame):
     exit_adl()
 
@@ -36,33 +42,27 @@ def color_prommpt(text):
 # retrieve new list
 def retrieve_list(account):
     color_print (f"Running trackma retrieve for account {account}...")
-    subprocess.call(f"trackma -a {account} retrieve")
-    subprocess.call("cls", shell=True)
+    subprocess.run(["trackma", "-a", account, "retrieve"])
+    subprocess.run(CLEAR)
     
 # retrieve updated list
 def retrieve_list_update(account):
     color_print(f"Running trackma retrieve for account {account} to get the updated list...")
-    subprocess.call(f"trackma -a {account} retrieve")
-    subprocess.call("cls", shell=True)
+    subprocess.run(["trackma", "-a", account, "retrieve"])
+    subprocess.run(CLEAR)
 
 # load list
 def load_list(account):
-    alist = subprocess.getoutput(f"trackma -a {account} list").splitlines()
+    alist = subprocess.run(["trackma", "-a", account, "list"], stdout=subprocess.PIPE).stdout.decode('utf-8').splitlines()
     alist.pop(0)
-    alist.pop()
+    alist = alist[: len(alist) - 3]
+    alist = "\n".join(alist)
     return alist
-
-# write list to a file
-def list2file(list, file):
-    for line in list:
-        file.write(line)
-        if not list.index(line) == len(list) - 1 :
-            file.write("\n")
 
 # exit prompt
 def exit_ask():
     while True:
-        subprocess.call("cls", shell=True)
+        subprocess.run(CLEAR)
         choice = color_prommpt("Want to watch another anime? [Y/n]: ")
         if choice == "N" or choice == "n":
             exit_adl()
@@ -83,8 +83,8 @@ def get_info(choice):
     index = int(choice[4:7])
 
     # get title
-    title = choice[9:-19]
-    title = title.rstrip(".")
+    title = str(choice[9:-19])
+    title = title.replace('.','')
     title = check_title(title)
 
     # get episode
@@ -93,23 +93,28 @@ def get_info(choice):
     # get score
     score = int(choice[-10:-5])
 
+    # print(f'/{title}/')
+    # exit_adl()
+    
     return index, title, episode, score
 
 # watch animes
 def watch(title, episode, download, provider, download_location):
-    cmd = f'animdl'
+    cmd = ['animdl']
     
     if download:
-        cmd += f' download '
+        cmd.append('download')
         if os.path.isdir(download_location):
             os.chdir(download_location)
         else:
             os.mkdir(download_location)
             os.chdir(download_location)
     else:
-        cmd += f' stream '
+        cmd.append('stream')
     
-    cmd += f'"{provider}:{title}" -r {episode}'
+    cmd.append(f'"{provider}:{title}"')
+    cmd.append('-r')
+    cmd.append(episode)
 
     subprocess.run(cmd)
 
@@ -175,8 +180,8 @@ def update_title(index, title, episode, account):
     color_print(f"Current episode for {title} is {str(episode)}")
     custom = color_prommpt("Enter updated episode number: ")
     if custom != "":
-        subprocess.call(f'trackma -a {account} update "{index}" {custom}')
-        subprocess.call(f'trackma -a {account} send')
+        subprocess.run(['trackma', '-a', account, 'update', str(index), custom])
+        subprocess.run(['trackma', '-a', account, 'send'])
         retrieve_list_update(account)
     else:
         color_print("Skipping updating...")
@@ -186,8 +191,8 @@ def update_score(index, title, score, account):
     color_print(f"Current score for {title} is {score}")
     custom = color_prommpt("Enter updated score: ")
     if custom != "":
-        subprocess.call(f'trackma -a {account} score "{index}" {custom}')
-        subprocess.call(f'trackma -a {account} send')
+        subprocess.run(['trackma', '-a', account, 'score', str(index), custom])
+        subprocess.run(['trackma', '-a', account, 'send'])
         retrieve_list_update(account)
     else:
         color_print("Skipping updating...")
@@ -232,7 +237,7 @@ def wanna_update_title_after_watch(index, title, episode, score, download, accou
 
 # choose what to do with episode
 def choose_episode():
-    subprocess.call("cls", shell=True)
+    subprocess.run(CLEAR)
     color_print("Enter lowercase or uppercase to issue command:")
     color_print("   N - Next episode (default, press <ENTER>)")
     color_print("   L - from current to Last known:")
@@ -246,7 +251,7 @@ def choose_episode():
     return color_prommpt("Your choice? [N/l/a/i/0-9/r/c/u/s]: ")
 
 def choose_episode_specific_show():
-    subprocess.call("cls", shell=True)
+    subprocess.run(CLEAR)
     color_print("Enter lowercase or uppercase to issue command:")
     color_print("   A - All available, from episode 1")
     color_print("   I - custom Interval (range) of episodes")
@@ -280,8 +285,6 @@ def argument_and_config_parser():
                     help="Define downloads location, Default location is in 'User folder/Videos/Anime'")
     ap.add_argument("-t", "--test-providers", required=False, type=bool, nargs='?', const=True, default=False,
                     help="Check the state of possible providers")
-    ap.add_argument("-c", "--check-show", required=False,
-                    help="Check what provider has that one anime you wan't to watch. Ex: \033[0;36m$adl -c 'gegege 2018' -n \033[0m")
     ap.add_argument("-v", "--version", required=False, nargs='?', const=True,
                     help="Display version and exit")
 
@@ -294,12 +297,7 @@ def argument_and_config_parser():
 
     # check if providers are working
     if args["test_providers"]:
-        subprocess.run("anime test")
-        sys.exit()
-
-    # check if anime exists in any of the providers
-    if args["check_show"]:
-        subprocess.run(f"anime test '{str(args['check_show'])}'")
+        subprocess.run(["animdl", "test"])
         sys.exit()
 
     # get provider
@@ -390,14 +388,8 @@ def main_loop(retrieve, account, msg, download,provider, download_location):
         # get the list of anime
         alist = load_list(account)
         
-        # write list to file
-        list2file(alist, FZF_FILE)
-        
-        # reload file (I Guess ??)
-        FZF_FILE.seek(0)
-        
         # get choice from fzf
-        choice = subprocess.getoutput(f'{PRINT_FZF_PATH} | fzf --ansi --unicode --reverse --prompt "Choose anime to watch: "')
+        choice = subprocess.run(["fzf", "--ansi", "--unicode", "--reverse", "--prompt", "Choose anime to watch: "], input=alist, stdout=subprocess.PIPE, encoding='utf-8').stdout
         
         if choice:
             # get needed info
@@ -475,6 +467,7 @@ def main_loop(retrieve, account, msg, download,provider, download_location):
 
 def main():
     signal.signal(signal.SIGINT, interupt_command)
+    # print("Inside")
 
     # setup env variables for better readability of outputs
     os.environ['LINES'] = '25'
