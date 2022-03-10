@@ -11,8 +11,8 @@ if sys.platform == "win32":
     DEFAULT_DOWNLOAD_LOCATION = os.path.join('C:\\', 'Users', str(os.getlogin()), 'Videos', 'Anime')
     CLEAR = 'cls'
 else:
-    CONFIG_FILE_PATH = os.path.join('home', str(os.getlogin()), '.config', 'adl', 'config.json')
-    DEFAULT_DOWNLOAD_LOCATION = os.path.join('home', str(os.getlogin()), 'Videos', 'Anime')
+    CONFIG_FILE_PATH = os.path.join('/home', str(os.getlogin()), '.config', 'adl', 'config.json')
+    DEFAULT_DOWNLOAD_LOCATION = os.path.join('/home', str(os.getlogin()), 'Videos', 'Anime')
     CLEAR = 'clear'
 
 PROBLEMATIC_TITLES = ['Komi-san wa, Komyushou desu ',
@@ -113,10 +113,10 @@ def watch(title, episode, download, provider, download_location):
     else:
         cmd.append('stream')
     
-    cmd.append(f'"{provider}:{title}"')
+    cmd.append(f'{provider}:{title}')
     cmd.append('-r')
     cmd.append(episode)
-
+    
     subprocess.run(cmd)
 
     if download:
@@ -264,6 +264,8 @@ def argument_and_config_parser():
     # config
     config = {}
     ConfigExists = False
+    # print(CONFIG_FILE_PATH)
+    # sys.exit()
     if os.path.exists(CONFIG_FILE_PATH):
         config_content = open(CONFIG_FILE_PATH, encoding='utf-8-sig').read()
         config = eval(config_content)
@@ -306,6 +308,7 @@ def argument_and_config_parser():
         provider = str(args["provider"])
     elif ConfigExists and 'provider' in config and config['provider']:
         provider = str(config["provider"])
+        
     else:
         provider = "zoro"
 
