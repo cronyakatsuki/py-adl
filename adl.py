@@ -4,6 +4,7 @@ import os, subprocess, sys, argparse, signal
 
 # required files
 CURRENT_DIR = os.getcwd()
+VERSION = "1.0"
 
 if sys.platform == "win32":
     CONFIG_FILE_PATH = os.path.join('C:\\', 'Users', str(os.getlogin()), 'Documents', 'Adl', 'config.json')
@@ -292,7 +293,7 @@ def argument_and_config_parser():
     
     # print the version
     if args["version"]:
-        print("Py-adl version 1.1")
+        print(f"Py-adl version {VERSION}")
         sys.exit()
 
     # check if providers are working
