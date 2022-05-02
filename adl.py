@@ -81,7 +81,7 @@ def load_list(account):
     alist = subprocess.run(["trackma", "-a", account, "list"],
                            stdout=subprocess.PIPE).stdout.decode('utf-8').splitlines()
     alist.pop(0)
-    alist = alist[: len(alist) - 3]
+    alist = alist[: len(alist) - 2]
     alist = "\n".join(alist)
     return alist
 
