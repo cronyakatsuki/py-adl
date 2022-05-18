@@ -101,11 +101,10 @@ def exit_ask():
 
 # check for problematic title
 def check_title(title):
-    for problem in PROBLEMATIC_TITLES:
-        if problem == title:
-            title = GOOD_TITLES[PROBLEMATIC_TITLES.index(
-                problem)].encode('utf-8')
-            title = title.decode('utf-8')
+    if title in PROBLEMATIC_TITLES:
+        title = GOOD_TITLES[PROBLEMATIC_TITLES.index(
+            title)].encode('utf-8')
+        title = title.decode('utf-8')
     return title
 
 
