@@ -29,7 +29,6 @@ GOOD_TITLES = ['Komi-san wa, Komyushou desu.',
                'SK∞']
 
 
-
 # exit function
 def exit_adl():
     sys.exit()
@@ -39,11 +38,9 @@ def interupt_command(signum, frame):
     exit_adl()
 
 
-
 # colored print
 def color_print(text):
     print(f"\033[0;36m{text } \033[0m")
-
 
 
 # colored watch primpt
@@ -52,11 +49,9 @@ def watch_prompt(title, episode, msg):
         f"Now {msg} \033[0;34m{title}\033[0m, episode \033[0;34m{str(episode)} \033[0m")
 
 
-
 # colored input
 def color_prommpt(text):
     return input(f"\033[0;34m{text}\033[0m")
-
 
 
 # retrieve new list
@@ -64,7 +59,6 @@ def retrieve_list(account):
     color_print(f"Running trackma retrieve for account {account}...")
     subprocess.run(["trackma", "-a", account, "retrieve"])
     subprocess.run(CLEAR)
-
 
 
 # retrieve updated list
@@ -75,7 +69,6 @@ def retrieve_list_update(account):
     subprocess.run(CLEAR)
 
 
-
 # load list
 def load_list(account):
     alist = subprocess.run(["trackma", "-a", account, "list"],
@@ -84,7 +77,6 @@ def load_list(account):
     alist = alist[: len(alist) - 2]
     alist = "\n".join(alist)
     return alist
-
 
 
 # exit prompt
@@ -98,7 +90,6 @@ def exit_ask():
             return
 
 
-
 # check for problematic title
 def check_title(title):
     if title in PROBLEMATIC_TITLES:
@@ -106,7 +97,6 @@ def check_title(title):
             title)].encode('utf-8')
         title = title.decode('utf-8')
     return title
-
 
 
 # get chosen anime info
@@ -129,7 +119,6 @@ def get_info(choice):
     # exit_adl()
 
     return index, title, episode, score
-
 
 
 # watch animes
@@ -156,7 +145,6 @@ def watch(title, episode, download, provider, download_location):
         os.chdir(CURRENT_DIR)
 
 
-
 # next episode
 def next_episode(title, episode, msg, download, provider, download_location):
     if not download:
@@ -179,19 +167,16 @@ def next_episode(title, episode, msg, download, provider, download_location):
         watch(title, str(episode), download, provider, download_location)
 
 
-
 # all from last watched
 def all_from_last(title, episode, msg, download, provider, download_location):
     watch_prompt(title, f"{str(episode)} all left episodes", msg)
     watch(title, f'{str(episode + 1)}:', download, provider, download_location)
 
 
-
 # all episode
 def all_episodes(title, msg, download, provider, download_location):
     watch_prompt(title, "all", msg)
     watch(title, '1:', download, provider, download_location)
-
 
 
 # watch from custom range
@@ -202,13 +187,11 @@ def custom_episode_range(title, msg, download, provider, download_location):
     watch(title, f"{begginig}:{end}", download, provider, download_location)
 
 
-
 # add to last watched m
 def next_plus_n(title, episode, action, msg, download, provider, download_location):
     watch_prompt(title, str(episode + int(action)), msg)
     watch(title, str(episode + int(action)),
           download, provider, download_location)
-
 
 
 # rewatch current episode
@@ -217,13 +200,11 @@ def rewatch_episode(title, episode, msg, download, provider, download_location):
     watch(title, str(episode), download, provider, download_location)
 
 
-
 # watch custom episode
 def custom_episode(title, msg, download, provider, download_location):
     episode = color_prommpt("Enter custom episode: ")
     watch_prompt(title, episode, msg)
     watch(title, episode, download, provider, download_location)
-
 
 
 # update title
@@ -239,7 +220,6 @@ def update_title(index, title, episode, account):
         color_print("Skipping updating...")
 
 
-
 # update score
 def update_score(index, title, score, account):
     color_print(f"Current score for {title} is {score}")
@@ -250,7 +230,6 @@ def update_score(index, title, score, account):
         retrieve_list_update(account)
     else:
         color_print("Skipping updating...")
-
 
 
 # update question
@@ -266,7 +245,6 @@ def update_question(index, title, episode, score, account):
             break
 
 
-
 # ask if you wanna continus watching
 def wanna_continu_watch(download):
     while True:
@@ -278,7 +256,6 @@ def wanna_continu_watch(download):
             return True
         elif yn == "n" or yn == "N":
             return False
-
 
 
 # ask if you wanna update title meta after watch
@@ -295,7 +272,6 @@ def wanna_update_title_after_watch(index, title, episode, score, download, accou
                 break
             elif yn == "N" or yn == "n" or yn == "":
                 break
-
 
 
 # choose what to do with episode
