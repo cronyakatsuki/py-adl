@@ -29,6 +29,25 @@ GOOD_TITLES = ['Komi-san wa, Komyushou desu.',
                'SK∞']
 
 
+CHOOSE_EPISODE='''Enter lowercase or uppercase to issue command:
+   N - Next episode (default, press <ENTER>)
+   L - from current to Last known:
+   A - All available, from episode 1
+   I - custom Interval (range) of episodes
+  0-9 - Plus n episodes relative to last seen (type number)
+   R - Rewatch/redownload current episode in list
+   C - Custom episode
+   U - Update entry chosen instead of streaming
+   S - Skip. Choose another show.
+'''
+
+CHOOSE_EPISODE_SPECIFIC_SHOW='''Enter lowercase or uppercase to issue command:
+   A - All available, from episode 1
+   I - custom Interval (range) of episodes
+   C - Custom episode
+   S - Skip. Exit adl.
+'''
+
 # exit function
 def exit_adl():
     sys.exit()
@@ -114,9 +133,6 @@ def get_info(choice):
 
     # get score
     score = int(choice[-10:-5])
-
-    # print(f'/{title}/')
-    # exit_adl()
 
     return index, title, episode, score
 
@@ -277,26 +293,13 @@ def wanna_update_title_after_watch(index, title, episode, score, download, accou
 # choose what to do with episode
 def choose_episode():
     subprocess.run(CLEAR)
-    color_print("Enter lowercase or uppercase to issue command:")
-    color_print("   N - Next episode (default, press <ENTER>)")
-    color_print("   L - from current to Last known:")
-    color_print("   A - All available, from episode 1")
-    color_print("   I - custom Interval (range) of episodes")
-    color_print("  0-9 - Plus n episodes relative to last seen (type number)")
-    color_print("   R - Rewatch/redownload current episode in list")
-    color_print("   C - Custom episode")
-    color_print("   U - Update entry chosen instead of streaming")
-    color_print("   S - Skip. Choose another show.")
+    color_print(CHOOSE_EPISODE)
     return color_prommpt("Your choice? [N/l/a/i/0-9/r/c/u/s]: ")
 
 
 def choose_episode_specific_show():
     subprocess.run(CLEAR)
-    color_print("Enter lowercase or uppercase to issue command:")
-    color_print("   A - All available, from episode 1")
-    color_print("   I - custom Interval (range) of episodes")
-    color_print("   C - Custom episode")
-    color_print("   S - Skip. Exit adl.")
+    color_print(CHOOSE_EPISODE_SPECIFIC_SHOW)
     return color_prommpt("Your choice? [A/i/c/s]: ")
 
 
